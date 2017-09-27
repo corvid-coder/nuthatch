@@ -1,0 +1,13 @@
+{
+  "name": "nuthatch",
+  "description": "A collection of game utilities.",
+  "keywords": ["game", "engine"],
+  "scripts": {
+    "publish": "lerna bootstrap && lerna publish --message \"chore: 🔖 Publish new version.\""
+  },
+  "author": "Danny Fritz <dannyfritz@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "lerna": "^2.2.0"
+  }
+}
