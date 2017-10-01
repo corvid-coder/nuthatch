@@ -1,18 +1,22 @@
 {
-  "name": "@nuthatch/logger",
+  "name": "@nuthatch/runtime",
   "version": "1.0.1",
-  "description": "A logger utility",
+  "description": "A runtime utility",
   "private": false,
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "prepublishOnly": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc --watch",
+    "test": "lite-server"
   },
   "keywords": [],
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^2.5.3"
+  },
+  "dependencies": {
+    "lite-server": "^2.3.0"
   }
 }

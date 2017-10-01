@@ -1,13 +1,22 @@
 {
   "name": "nuthatch",
   "description": "A collection of game utilities.",
-  "keywords": ["game", "engine"],
+  "keywords": [
+    "game",
+    "engine"
+  ],
   "scripts": {
-    "publish": "lerna bootstrap && lerna publish --message \"chore: 🔖 Publish new version.\""
+    "publish": "lerna bootstrap --hoist && lerna publish --message \"chore: 🔖 Publish new version.\"",
+    "dev": "lerna bootstrap --hoist && lerna run dev",
+    "test": "lerna bootstrap --hoist && lerna run test"
   },
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "lerna": "^2.2.0"
-  }
+    "lerna": "^2.2.0",
+    "remark-lint": "^6.0.1",
+    "remark-lint-checkbox-content-indent": "^1.0.1",
+    "remark-preset-lint-recommended": "^3.0.1"
+  },
+  "dependencies": {}
 }
