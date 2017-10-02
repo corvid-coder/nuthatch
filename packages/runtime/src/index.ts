@@ -1,3 +1,4 @@
+//TODO: Support variable timestep
 export default class Runtime {
   private lastTime : number
   private startTime : number

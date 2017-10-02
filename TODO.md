@@ -1,16 +1,14 @@
 # TODO
 
 -   [ ] Graphics
--   [ ] Keyboard
+-   [x] Keyboard
 -   [ ] Gamepad
 -   [ ] Mouse
 -   [ ] Audio
 -   [ ] Vector
 -   [ ] Collision Detection
--   [ ] Runtime
-    -   [x] Fixed Update
-    -   [ ] Variable Update
+-   [x] Runtime
 -   [ ] Debug
-    -   [ ] Logger
+    -   [x] Logger
     -   [ ] Profiler
 -   [ ] Sensors (for phones usually)
