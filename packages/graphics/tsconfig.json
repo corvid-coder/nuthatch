@@ -20,5 +20,5 @@
     "inlineSourceMap": false,
     "removeComments": true
   },
-  "exclude": []
+  "exclude": ["index.d.ts", "index.js"]
 }

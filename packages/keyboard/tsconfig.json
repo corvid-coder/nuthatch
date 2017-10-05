@@ -17,7 +17,8 @@
     
     "moduleResolution": "node",
 
-    "inlineSourceMap": false
+    "inlineSourceMap": false,
+    "removeComments": true
   },
   "exclude": []
 }

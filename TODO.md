@@ -1,14 +1,32 @@
 # TODO
 
--   [ ] Graphics
--   [x] Keyboard
--   [ ] Gamepad
--   [ ] Mouse
--   [ ] Audio
--   [ ] Vector
--   [ ] Collision Detection
--   [x] Runtime
--   [ ] Debug
+-   Graphics
+    -   [x] Context
+    -   [ ] Triangle
+    -   [ ] setColor
+    -   [ ] image
+    -   [ ] scale
+    -   [ ] translate
+    -   [ ] rotate
+    -   [ ] push
+    -   [ ] pop
+-   Keyboard
+    -   [x] key state
+-   Gamepad
+-   Mouse
+-   Audio
+-   Vector
+-   Collision Detection
+-   Runtime
+    -   [x] Fixed
+-   Debug
     -   [x] Logger
     -   [ ] Profiler
--   [ ] Sensors (for phones usually)
+-   Sensors (for phones usually)
+    -   [ ] Ambient Light
+    -   [ ] Motion
+    -   [ ] MIDI
+    -   [ ] Microphone
+    -   [ ] Orientation
+    -   [ ] Location
+    -   [ ] Battery
