@@ -1,9 +1,8 @@
 # TODO
 
 -   Graphics
-    -   [x] Context
-    -   [ ] Triangle
-    -   [ ] setColor
+    -   [x] context
+    -   [x] triangle
     -   [ ] image
     -   [ ] scale
     -   [ ] translate
@@ -16,12 +15,13 @@
 -   Mouse
 -   Audio
 -   Vector
+-   Event Bus
 -   Collision Detection
 -   Runtime
-    -   [x] Fixed
+    -   [x] fixed
 -   Debug
-    -   [x] Logger
-    -   [ ] Profiler
+    -   [x] logger
+    -   [ ] profiler
 -   Sensors (for phones usually)
     -   [ ] Ambient Light
     -   [ ] Motion
