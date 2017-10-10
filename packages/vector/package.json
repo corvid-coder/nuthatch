@@ -1,7 +1,7 @@
 {
-  "name": "@nuthatch/debug",
+  "name": "@nuthatch/vector",
   "version": "1.0.1",
-  "description": "A debug utility",
+  "description": "A vector utility",
   "private": false,
   "main": "./index.js",
   "types": "./index.d.ts",

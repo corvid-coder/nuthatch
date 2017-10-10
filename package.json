@@ -6,9 +6,8 @@
     "engine"
   ],
   "scripts": {
-    "publish": "lerna bootstrap --hoist && lerna publish --message \"chore: 🔖 Publish new version.\"",
-    "dev": "lerna bootstrap --hoist && lerna run dev",
-    "test": "lerna bootstrap --hoist && lerna run test"
+    "publish": "lerna bootstrap && lerna publish --message \"chore: 🔖 Publish new version.\"",
+    "build": "lerna bootstrap"
   },
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
@@ -16,7 +15,8 @@
     "lerna": "^2.2.0",
     "remark-lint": "^6.0.1",
     "remark-lint-checkbox-content-indent": "^1.0.1",
-    "remark-preset-lint-recommended": "^3.0.1"
-  },
-  "dependencies": {}
+    "remark-preset-lint-recommended": "^3.0.1",
+    "typescript": "^2.5.3",
+    "lite-server": "^2.3.0"
+  }
 }

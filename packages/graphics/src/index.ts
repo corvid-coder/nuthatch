@@ -1,8 +1,6 @@
-export interface Vector2<T> {
-  x: T,
-  y: T,
-}
+import {Vector2} from "../node_modules/@nuthatch/vector/index.js"
 
+//QUESTION: Should this just be a vector?
 export interface Color {
   r: number,
   g: number,
@@ -110,7 +108,10 @@ class Graphics
 {
   private gl : WebGL2RenderingContext
   private programs: { [index: string]: Program } = {}
-  constructor (target : HTMLElement) {
+  constructor (
+    target : HTMLElement
+  )
+  {
     const canvas = document.createElement(`canvas`) as HTMLCanvasElement
     const gl = canvas.getContext(`webgl2`, {
       antialias: false,
@@ -139,16 +140,30 @@ class Graphics
       },
     }
   }
-  clear (color: Color)
+  clear (
+    color: Color
+  )
   {
     this.gl.clearColor(color.r, color.g, color.b, color.a)
     this.gl.clear(this.gl.COLOR_BUFFER_BIT)
+  }
+  setColor (
+    color: Color
+  )
+  {
+    this.gl.useProgram(this.programs.triangle.program)
+    this.gl.uniform4f(
+      this.programs.triangle.uniforms.u_color,
+      color.r,
+      color.g,
+      color.b,
+      color.a,
+    )
   }
   triangle (
     v1: Vector2<number>,
     v2: Vector2<number>,
     v3: Vector2<number>,
-    color: Color
   )
   {
     this.gl.useProgram(this.programs.triangle.program)
@@ -162,13 +177,6 @@ class Graphics
       v3.x, v3.y,
     ]
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW)
-    this.gl.uniform4f(
-      this.programs.triangle.uniforms.u_color,
-      color.r,
-      color.g,
-      color.b,
-      color.a
-    )
     this.gl.vertexAttribPointer(
       this.programs.triangle.attributes.a_position,
       2,

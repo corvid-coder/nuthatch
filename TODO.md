@@ -3,18 +3,22 @@
 -   Graphics
     -   [x] context
     -   [x] triangle
+    -   [ ] rectangle
+    -   [ ] circle
     -   [ ] image
-    -   [ ] scale
-    -   [ ] translate
-    -   [ ] rotate
-    -   [ ] push
-    -   [ ] pop
+    -   [ ] setTransformMatrix
 -   Keyboard
     -   [x] key state
 -   Gamepad
 -   Mouse
 -   Audio
 -   Vector
+-   Matrix
+    -   [ ] scale
+    -   [ ] translate
+    -   [ ] rotate
+    -   [ ] push <!-- QUESTION: Where does this belong? -->
+    -   [ ] pop
 -   Event Bus
 -   Collision Detection
 -   Runtime

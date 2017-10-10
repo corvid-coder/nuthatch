@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es2015", 
+    "module": "es2015",
+    "lib": ["ES2017", "DOM", "DOM.Iterable"],
+    "declaration": true,
+    "sourceMap": true,
+    "rootDirs": ["./src"],
+
+    "strict": true,
+    
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    "moduleResolution": "node",
+
+    "inlineSourceMap": false,
+    "removeComments": true
+  },
+  "exclude": [
+    "./packages/*/index.js",
+    "./packages/*/index.d.ts"
+  ]
+}
