@@ -1,4 +1,4 @@
-import {Vector2} from "../node_modules/@nuthatch/vector/index.js"
+import { Vector2 } from "../node_modules/@nuthatch/vector/index.js"
 
 //QUESTION: Should this just be a vector?
 export interface Color {
@@ -10,6 +10,7 @@ export interface Color {
 
 interface Program {
   program: WebGLProgram,
+  buffers: {[index: string]: number},
   attributes: {[index: string]: number},
   uniforms: {[index: string]: WebGLUniformLocation},
 }
@@ -130,8 +131,14 @@ class Graphics
   }
   setupPrograms () {
     let program = initShaderProgram(this.gl, vertexShaderSource, fragmentShaderSource)
+    this.gl.useProgram(program)
     this.programs.triangle = {
       program: program,
+      // QUESTION: Does each program need its own buffers?
+      buffers: {
+        elements: this.gl.createBuffer(),
+        position: this.gl.createBuffer(),
+      },
       attributes: {
         a_position: getAttributeLocation(this.gl, program, "a_position"),
       },
@@ -151,6 +158,7 @@ class Graphics
     color: Color
   )
   {
+    //QUESTION: Does this need to be here?
     this.gl.useProgram(this.programs.triangle.program)
     this.gl.uniform4f(
       this.programs.triangle.uniforms.u_color,
@@ -160,22 +168,17 @@ class Graphics
       color.a,
     )
   }
-  triangle (
-    v1: Vector2<number>,
-    v2: Vector2<number>,
-    v3: Vector2<number>,
+  private triangles (
+    vertices: Vector2<number>[],
+    elements: number[],
   )
   {
     this.gl.useProgram(this.programs.triangle.program)
-    //TODO: Maybe don't create a buffer every time.
-    const positionBuffer = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, positionBuffer)
-    const positions =
-    [
-      v1.x, v1.y,
-      v2.x, v2.y,
-      v3.x, v3.y,
-    ]
+    const positions = vertices.reduce((vs, v) => {
+      vs.push(v.x, v.y)
+      return vs
+    }, [] as number[])
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.triangle.buffers.position)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW)
     this.gl.vertexAttribPointer(
       this.programs.triangle.attributes.a_position,
@@ -185,8 +188,41 @@ class Graphics
       0,
       0
     )
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.triangle.buffers.elements)
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elements), this.gl.STATIC_DRAW)
     this.gl.enableVertexAttribArray(this.programs.triangle.attributes.a_position)
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, 3)
+    this.gl.drawElements(
+      this.gl.TRIANGLES,
+      elements.length,
+      this.gl.UNSIGNED_SHORT,
+      0
+    )
+  }
+  rectangle (
+    position: Vector2<number>,
+    size: Vector2<number>,
+  )
+  {
+    this.triangles(
+      [
+        {x: position.x, y: position.y + size.y},
+        {x: position.x + size.x, y: position.y + size.y},
+        {x: position.x, y: position.y},
+        {x: position.x + size.x, y: position.y},
+      ],
+      [1, 2, 0, 3, 2, 1]
+    )
+  }
+  triangle (
+    v1: Vector2<number>,
+    v2: Vector2<number>,
+    v3: Vector2<number>,
+  )
+  {
+    this.triangles(
+      [v1, v2, v3],
+      [0, 1, 2]
+    )
   }
 }
 
