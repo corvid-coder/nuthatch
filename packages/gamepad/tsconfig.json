@@ -1,0 +1,9 @@
+{
+  "extends": "../../basetsconfig",
+  "compilerOptions": {
+    "outDir": "./"
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
