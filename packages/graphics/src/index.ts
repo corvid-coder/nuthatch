@@ -1,4 +1,5 @@
 import { Vector2 } from "../node_modules/@nuthatch/vector/index.js"
+//TODO: Leave API functions here, move GL stuff into module or maybe package
 
 //QUESTION: Should this just be a vector?
 export interface Color {
@@ -72,6 +73,16 @@ function getAttributeLocation (
   return location
 }
 
+function getBuffer (
+  gl: WebGL2RenderingContext
+) : number {
+  const buffer = gl.createBuffer()
+  if (buffer === null) {
+    throw new Error(`Failed to create buffer`)
+  }
+  return buffer
+}
+
 function getUniformLocation(
   gl: WebGL2RenderingContext,
   program: WebGLProgram,
@@ -114,6 +125,7 @@ class Graphics
   )
   {
     const canvas = document.createElement(`canvas`) as HTMLCanvasElement
+    canvas.height = canvas.width
     const gl = canvas.getContext(`webgl2`, {
       antialias: false,
       depth: false,
@@ -136,8 +148,8 @@ class Graphics
       program: program,
       // QUESTION: Does each program need its own buffers?
       buffers: {
-        elements: this.gl.createBuffer(),
-        position: this.gl.createBuffer(),
+        elements: getBuffer(this.gl),
+        position: getBuffer(this.gl),
       },
       attributes: {
         a_position: getAttributeLocation(this.gl, program, "a_position"),
@@ -154,6 +166,7 @@ class Graphics
     this.gl.clearColor(color.r, color.g, color.b, color.a)
     this.gl.clear(this.gl.COLOR_BUFFER_BIT)
   }
+  //TODO: Handle alpha colors
   setColor (
     color: Color
   )
@@ -198,6 +211,42 @@ class Graphics
       0
     )
   }
+  circle (
+    position: Vector2<number>,
+    radius: number,
+    segments: number = 26,
+  )
+  {
+    const indices = []
+    for (var i=1; i<segments-1; i++) {
+      indices.push(0, i, i+1)
+    }
+    const vertices = []
+    for (var i=0; i<segments; i++) {
+      const theta = (360 / (segments)) * i * (Math.PI / 180)
+      vertices.push({
+        x: position.x + Math.cos(theta) * radius,
+        y: position.y + Math.sin(theta) * radius,
+      })
+    }
+    this.triangles(
+      vertices,
+      indices,
+    )
+  }
+  polygon (
+    vertices :Vector2<number>[]
+  )
+  {
+    const indices = []
+    for (var i=1; i<vertices.length-1; i++) {
+      indices.push(0, i, i+1)
+    }
+    this.triangles(
+      vertices,
+      indices,
+    )
+  }
   rectangle (
     position: Vector2<number>,
     size: Vector2<number>,
@@ -210,7 +259,7 @@ class Graphics
         {x: position.x, y: position.y},
         {x: position.x + size.x, y: position.y},
       ],
-      [1, 2, 0, 3, 2, 1]
+      [1, 2, 0, 3, 2, 1],
     )
   }
   triangle (
@@ -221,7 +270,7 @@ class Graphics
   {
     this.triangles(
       [v1, v2, v3],
-      [0, 1, 2]
+      [0, 1, 2],
     )
   }
 }

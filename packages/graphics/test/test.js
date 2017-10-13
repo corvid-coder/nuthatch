@@ -2,18 +2,41 @@ import Graphics from "/index.js"
 
 const graphics = new Graphics(document.body)
 graphics.clear({r: 0, g: 0, b: 0, a: 1})
-const randPos = () => Math.random() * 2 - 1
-const color = {r: Math.random(), g: Math.random(), b: Math.random(), a: 1}
-const position = {x: randPos(), y: randPos()}
-const size = {x: Math.random(), y: Math.random()}
-setInterval(() => {
-  color.r = Math.random()
-  color.g = Math.random()
-  color.b = Math.random()
-  graphics.setColor(color)
-  position.x = randPos()
-  position.y = randPos()
-  size.x = Math.random()
-  size.y = Math.random()
-  graphics.rectangle(position, size)
-}, 200)
+graphics.setColor({r: 1, g: 1, b: 0, a: 1})
+graphics.rectangle(
+  {x: -1, y: 0},
+  {x: 1, y: 1},
+)
+graphics.setColor({r: 0, g: 1, b: 1, a: 1})
+graphics.triangle(
+  {x: -1,   y:  0},
+  {x:  0,   y:  0},
+  {x: -0.5, y: -1},
+)
+graphics.setColor({r: 0.5, g: 0.1, b: 1, a: 1})
+graphics.polygon(
+  [
+    {x: 1,   y:  0},
+    {x: 0.5, y:  1},
+    {x: 0,   y:  0},
+    {x: 0,   y: -1},
+    {x: 1,   y: -1},
+  ]
+)
+graphics.setColor({r: 0, g: 1, b: 0, a: 1})
+graphics.circle(
+  {x: 0, y: 0},
+  0.5
+)
+graphics.setColor({r: 1, g: 0, b: 0, a: 1})
+graphics.circle(
+  {x: -0.5, y: 0.5},
+  0.25,
+  6
+)
+graphics.setColor({r: 1, g: 0, b: 0, a: 1})
+graphics.circle(
+  {x: 0.5, y: -0.5},
+  0.25,
+  6
+)

@@ -3,13 +3,16 @@
 -   Graphics
     -   [x] context
     -   [x] triangle
-    -   [ ] rectangle
-    -   [ ] circle
+    -   [x] rectangle
+    -   [x] polygon
+    -   [x] circle
+    -   [ ] point
     -   [ ] image
     -   [ ] setTransformMatrix
 -   Keyboard
     -   [x] key state
 -   Gamepad
+    -   [x] getGamepads
 -   Mouse
 -   Audio
 -   Vector
