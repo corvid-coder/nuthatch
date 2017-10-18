@@ -11,31 +11,63 @@ export interface Color {
 
 interface Program {
   program: WebGLProgram,
-  buffers: {[index: string]: number},
+  buffers: {[index: string]: WebGLBuffer},
   attributes: {[index: string]: number},
   uniforms: {[index: string]: WebGLUniformLocation},
 }
 
 //TODO: Make this a separate file.
-const vertexShaderSource = `#version 300 es
-  in vec4 a_position;
-  
-  void main () {
-    gl_Position = vec4(a_position.x, -a_position.y, a_position.z, a_position.w);
-  }
-`
+const shapeProgramSource = {
+  vertex:
+    `#version 300 es
+      in vec4 a_position;
+      
+      void main () {
+        gl_Position = vec4(a_position.x, -a_position.y, a_position.z, a_position.w);
+      }
+    `,
+  fragment: 
+    `#version 300 es
+    precision mediump float;
+    
+    uniform vec4 u_color;
+    out vec4 o_color;
 
-//TODO: Make this a separate file.
-const fragmentShaderSource = `#version 300 es
-  precision mediump float;
-  
-  uniform vec4 u_color;
-  out vec4 out_color;
+    void main () {
+      o_color = vec4(u_color);
+    }
+  `,
+}
 
-  void main () {
-    out_color = u_color;
-  }
-`
+const imageProgramSource = {
+  vertex:
+    `#version 300 es
+      in vec3 a_position;
+      in vec2 a_texCoord;
+      
+      out vec2 o_TexCoord;
+      
+      void main () {
+        gl_Position = vec4(a_position.x, -a_position.y, a_position.z, 1.0);
+        o_TexCoord = a_texCoord;
+      }
+    `,
+  fragment: 
+    `#version 300 es
+    precision mediump float;
+    
+    uniform vec4 u_color;
+    uniform sampler2D u_tex;
+    
+    in vec2 o_TexCoord;
+    
+    out vec4 o_color;
+
+    void main () {
+      o_color = texture(u_tex, o_TexCoord);
+    }
+  `,
+}
 
 function initShaderProgram (
   gl: WebGL2RenderingContext,
@@ -65,7 +97,8 @@ function getAttributeLocation (
   gl: WebGL2RenderingContext,
   program: WebGLProgram,
   label: string
-) : number {
+) : number
+{
   const location = gl.getAttribLocation(program, label)
   if (location === null) {
     throw new Error(`Failed to get attribute location of ${label}`)
@@ -75,7 +108,8 @@ function getAttributeLocation (
 
 function getBuffer (
   gl: WebGL2RenderingContext
-) : number {
+) : WebGLBuffer
+{
   const buffer = gl.createBuffer()
   if (buffer === null) {
     throw new Error(`Failed to create buffer`)
@@ -138,16 +172,23 @@ class Graphics
       throw new Error(`Failed to get "webgl2" rendering context from browser.`)
     }
     this.gl = gl as WebGL2RenderingContext
+    this.gl.enable(this.gl.BLEND)
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
     target.appendChild(canvas)
     this.setupPrograms()
   }
   setupPrograms () {
-    let program = initShaderProgram(this.gl, vertexShaderSource, fragmentShaderSource)
+    let program = initShaderProgram(
+      this.gl,
+      shapeProgramSource.vertex,
+      shapeProgramSource.fragment
+    )
     this.gl.useProgram(program)
     this.programs.triangle = {
       program: program,
       // QUESTION: Does each program need its own buffers?
       buffers: {
+        //FIXME: vbo & ebo
         elements: getBuffer(this.gl),
         position: getBuffer(this.gl),
       },
@@ -156,6 +197,28 @@ class Graphics
       },
       uniforms: {
         u_color: getUniformLocation(this.gl, program, "u_color"),
+      },
+    }
+    program = initShaderProgram(
+      this.gl,
+      imageProgramSource.vertex,
+      imageProgramSource.fragment
+    )
+    this.gl.useProgram(program)
+    this.programs.image = {
+      program: program,
+      // QUESTION: Does each program need its own buffers?
+      buffers: {
+        vbo: getBuffer(this.gl),
+        ebo: getBuffer(this.gl),
+      },
+      attributes: {
+        a_position: getAttributeLocation(this.gl, program, "a_position"),
+        a_texCoord: getAttributeLocation(this.gl, program, "a_texCoord"),
+      },
+      uniforms: {
+        // u_color: getUniformLocation(this.gl, program, "u_color"),
+        u_tex: getUniformLocation(this.gl, program, "u_tex"),
       },
     }
   }
@@ -179,6 +242,59 @@ class Graphics
       color.g,
       color.b,
       color.a,
+    )
+  }
+  image (
+    image: HTMLImageElement
+  )
+  {
+    this.gl.useProgram(this.programs.image.program)
+    //QUESTION: Should this be done only once?
+    this.gl.activeTexture(this.gl.TEXTURE0)
+    const texture = this.gl.createTexture()
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.uniform1i(this.programs.image.uniforms.u_tex, 0)
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+                  this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+    //TODO: support image color modulations and alpha
+    const vertices = new Float32Array([
+       -1, -1,   0, 0,
+        1, -1,   1, 0,
+       -1,  1,   0, 1,
+        1,  1,   1, 1,
+    ])
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
+    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_position)
+    this.gl.vertexAttribPointer(
+      this.programs.image.attributes.a_position,
+      2,
+      this.gl.FLOAT,
+      false,
+      4 * Float32Array.BYTES_PER_ELEMENT,
+      0 * Float32Array.BYTES_PER_ELEMENT
+    )
+    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_texCoord)
+    this.gl.vertexAttribPointer(
+      this.programs.image.attributes.a_texCoord,
+      2,
+      this.gl.FLOAT,
+      false,
+      4 * Float32Array.BYTES_PER_ELEMENT,
+      2 * Float32Array.BYTES_PER_ELEMENT
+    )
+    const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.image.buffers.ebo)
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
+    this.gl.drawElements(
+      this.gl.TRIANGLES,
+      elements.length,
+      this.gl.UNSIGNED_SHORT,
+      0
     )
   }
   private triangles (

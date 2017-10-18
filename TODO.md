@@ -1,7 +1,14 @@
 # TODO
 
+-   gl
+    -   [ ] context
+    -   [ ] compile shader
+    -   [ ] compile program
+    -   [ ] get buffer
+    -   [ ] get vertex attribute
+    -   [ ] get uniform location
+    -   [ ] load shader source
 -   Graphics
-    -   [x] context
     -   [x] triangle
     -   [x] rectangle
     -   [x] polygon
@@ -37,3 +44,6 @@
     -   [ ] Orientation
     -   [ ] Location
     -   [ ] Battery
+-   Demos
+    -   [x] Pong
+    -   [ ] Flappy Bird

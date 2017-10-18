@@ -1,5 +1,7 @@
 import Graphics from "/index.js"
 
+const image = new Image()
+
 const graphics = new Graphics(document.body)
 graphics.clear({r: 0, g: 0, b: 0, a: 1})
 graphics.setColor({r: 1, g: 1, b: 0, a: 1})
@@ -23,12 +25,12 @@ graphics.polygon(
     {x: 1,   y: -1},
   ]
 )
-graphics.setColor({r: 0, g: 1, b: 0, a: 1})
+graphics.setColor({r: 0, g: 1, b: 0, a: 0.4})
 graphics.circle(
   {x: 0, y: 0},
   0.5
 )
-graphics.setColor({r: 1, g: 0, b: 0, a: 1})
+graphics.setColor({r: 1, g: 0, b: 0, a: 1.0})
 graphics.circle(
   {x: -0.5, y: 0.5},
   0.25,
@@ -40,3 +42,8 @@ graphics.circle(
   0.25,
   6
 )
+
+// image.onload = () => {
+//   graphics.image(image)
+// }
+// image.src = "./parrot.png"

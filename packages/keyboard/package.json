@@ -12,5 +12,9 @@
   },
   "keywords": [],
   "author": "Danny Fritz <dannyfritz@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "lite-server": "^2.3.0",
+    "typescript": "^2.5.3"
+  }
 }

@@ -15,5 +15,9 @@
   "license": "MIT",
   "dependencies": {
     "@types/gamepad": "0.0.28"
+  },
+  "devDependencies": {
+    "lite-server": "^2.3.0",
+    "typescript": "^2.5.3"
   }
 }

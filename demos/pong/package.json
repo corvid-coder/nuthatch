@@ -13,5 +13,8 @@
     "@nuthatch/graphics": "^1.0.0",
     "@nuthatch/runtime": "^1.0.0",
     "@nuthatch/keyboard": "^1.0.0"
+  },
+  "devDependencies": {
+    "lite-server": "^2.3.0"
   }
 }
