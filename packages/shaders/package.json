@@ -1,0 +1,10 @@
+{
+  "name": "@nuthatch/shaders",
+  "version": "1.0.1",
+  "description": "The shaders for @nuthatch/graphics",
+  "private": false,
+  "scripts": {},
+  "keywords": [],
+  "author": "Danny Fritz <dannyfritz@gmail.com>",
+  "license": "MIT"
+}

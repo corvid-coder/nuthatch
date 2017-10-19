@@ -1,7 +1,7 @@
 {
-  "name": "@nuthatch/runtime",
+  "name": "@nuthatch/gl2",
   "version": "1.0.1",
-  "description": "A runtime utility",
+  "description": "A WebGL2 utility",
   "private": false,
   "main": "./index.js",
   "types": "./index.d.ts",

@@ -6,8 +6,9 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "prepublishOnly": "tsc",
-    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "build": "tsc",
+    "dev": "npm run build -- --watch",
     "test": "lite-server"
   },
   "keywords": [],

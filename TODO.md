@@ -1,21 +1,21 @@
 # TODO
 
 -   gl
-    -   [ ] context
-    -   [ ] compile shader
-    -   [ ] compile program
-    -   [ ] get buffer
-    -   [ ] get vertex attribute
-    -   [ ] get uniform location
-    -   [ ] load shader source
+    -   [x] context
+    -   [x] compile shader
+    -   [x] compile program
+    -   [x] create buffer
+    -   [x] get vertex attribute
+    -   [x] get uniform location
 -   Graphics
     -   [x] triangle
     -   [x] rectangle
     -   [x] polygon
     -   [x] circle
+    -   [x] load shader source
     -   [ ] point
-    -   [ ] image
-    -   [ ] setTransformMatrix
+    -   [x] image
+    -   [ ] setTransformMatrix <!-- QUESTION WHERE SHOULD THIS GO? -->
 -   Keyboard
     -   [x] key state
 -   Gamepad
@@ -23,6 +23,8 @@
 -   Mouse
 -   Audio
 -   Vector
+    -   [ ] clone
+    -   [ ] math
 -   Matrix
     -   [ ] scale
     -   [ ] translate

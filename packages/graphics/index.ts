@@ -1,7 +1,15 @@
-import { Vector2 } from "../node_modules/@nuthatch/vector/index.js"
-//TODO: Leave API functions here, move GL stuff into module or maybe package
+import { Vector2 } from "./node_modules/@nuthatch/vector/index.js"
+import {
+  Program,
+  getContext,
+  initShaderProgram,
+  getAttributeLocation,
+  getUniformLocation,
+  createBuffer,
+} from "./node_modules/@nuthatch/gl2/index.js"
 
 //QUESTION: Should this just be a vector?
+//IDEA: getters on Vector4
 export interface Color {
   r: number,
   g: number,
@@ -9,145 +17,11 @@ export interface Color {
   a: number,
 }
 
-interface Program {
-  program: WebGLProgram,
-  buffers: {[index: string]: WebGLBuffer},
-  attributes: {[index: string]: number},
-  uniforms: {[index: string]: WebGLUniformLocation},
-}
-
-//TODO: Make this a separate file.
-const shapeProgramSource = {
-  vertex:
-    `#version 300 es
-      in vec4 a_position;
-      
-      void main () {
-        gl_Position = vec4(a_position.x, -a_position.y, a_position.z, a_position.w);
-      }
-    `,
-  fragment: 
-    `#version 300 es
-    precision mediump float;
-    
-    uniform vec4 u_color;
-    out vec4 o_color;
-
-    void main () {
-      o_color = vec4(u_color);
-    }
-  `,
-}
-
-const imageProgramSource = {
-  vertex:
-    `#version 300 es
-      in vec3 a_position;
-      in vec2 a_texCoord;
-      
-      out vec2 o_TexCoord;
-      
-      void main () {
-        gl_Position = vec4(a_position.x, -a_position.y, a_position.z, 1.0);
-        o_TexCoord = a_texCoord;
-      }
-    `,
-  fragment: 
-    `#version 300 es
-    precision mediump float;
-    
-    uniform vec4 u_color;
-    uniform sampler2D u_tex;
-    
-    in vec2 o_TexCoord;
-    
-    out vec4 o_color;
-
-    void main () {
-      o_color = texture(u_tex, o_TexCoord);
-    }
-  `,
-}
-
-function initShaderProgram (
-  gl: WebGL2RenderingContext,
-  vertexShaderSource: string,
-  fragmentShaderSource: string
-) : WebGLProgram
-{
-  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
-  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
-  const shaderProgram = gl.createProgram()
-  if (!shaderProgram) {
-    throw new Error(`Failed to create WebGL2Program`)
-  }
-  gl.attachShader(shaderProgram, vertexShader)
-  gl.attachShader(shaderProgram, fragmentShader)
-  gl.linkProgram(shaderProgram)
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-    throw new Error(`
-      Unable to initialize the shader program:
-        ${gl.getProgramInfoLog(shaderProgram)}
-      `)
-  }
-  return shaderProgram
-}
-
-function getAttributeLocation (
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  label: string
-) : number
-{
-  const location = gl.getAttribLocation(program, label)
-  if (location === null) {
-    throw new Error(`Failed to get attribute location of ${label}`)
-  }
-  return location
-}
-
-function getBuffer (
-  gl: WebGL2RenderingContext
-) : WebGLBuffer
-{
-  const buffer = gl.createBuffer()
-  if (buffer === null) {
-    throw new Error(`Failed to create buffer`)
-  }
-  return buffer
-}
-
-function getUniformLocation(
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  label: string
-) : WebGLUniformLocation
-{
-  const location = gl.getUniformLocation(program, label)
-  if (location === null) {
-    throw new Error(`Failed to get uniform location of ${label}`)
-  }
-  return location
-}
-
-function loadShader(
-  gl: WebGL2RenderingContext,
-  type: WebGL2RenderingContext["VERTEX_SHADER"] | WebGL2RenderingContext["FRAGMENT_SHADER"],
-  source: string)
-  : WebGLShader
-{
-  const shader = gl.createShader(type)
-  if (!shader) {
-    throw new Error(`Failed to create WebGL2Shader`)
-  }
-  gl.shaderSource(shader, source)
-  gl.compileShader(shader)
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const message = gl.getShaderInfoLog(shader)
-    gl.deleteShader(shader);
-    throw new Error(`An error occurred compiling the shaders: ${message}`);
-  }
-  return shader
+function getSource (
+  filename: string
+) : Promise<string> {
+  return fetch(filename)
+    .then((res) => res.text())
 }
 
 class Graphics
@@ -159,38 +33,25 @@ class Graphics
   )
   {
     const canvas = document.createElement(`canvas`) as HTMLCanvasElement
+    //TODO: allow user to specify
     canvas.height = canvas.width
-    const gl = canvas.getContext(`webgl2`, {
-      antialias: false,
-      depth: false,
-      failIfMajorPerformanceCaveat: false,
-      stencil: false,
-      premultipliedAlpha: true,
-      preserveDrawingBuffer: true,
-    })
-    if (!gl) {
-      throw new Error(`Failed to get "webgl2" rendering context from browser.`)
-    }
-    this.gl = gl as WebGL2RenderingContext
-    this.gl.enable(this.gl.BLEND)
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA)
+    this.gl = getContext(canvas)
+    //TODO: allow user to specify location
     target.appendChild(canvas)
-    this.setupPrograms()
   }
-  setupPrograms () {
-    let program = initShaderProgram(
+  async setup () {
+    let program
+    program = initShaderProgram(
       this.gl,
-      shapeProgramSource.vertex,
-      shapeProgramSource.fragment
+      await getSource("/node_modules/@nuthatch/shaders/src/shape.v.glsl"),
+      await getSource("/node_modules/@nuthatch/shaders/src/shape.f.glsl")
     )
     this.gl.useProgram(program)
     this.programs.triangle = {
       program: program,
-      // QUESTION: Does each program need its own buffers?
       buffers: {
-        //FIXME: vbo & ebo
-        elements: getBuffer(this.gl),
-        position: getBuffer(this.gl),
+        vbo: createBuffer(this.gl),
+        ebo: createBuffer(this.gl),
       },
       attributes: {
         a_position: getAttributeLocation(this.gl, program, "a_position"),
@@ -201,23 +62,22 @@ class Graphics
     }
     program = initShaderProgram(
       this.gl,
-      imageProgramSource.vertex,
-      imageProgramSource.fragment
+      await getSource("/node_modules/@nuthatch/shaders/src/image.v.glsl"),
+      await getSource("/node_modules/@nuthatch/shaders/src/image.f.glsl"),
     )
     this.gl.useProgram(program)
     this.programs.image = {
       program: program,
-      // QUESTION: Does each program need its own buffers?
       buffers: {
-        vbo: getBuffer(this.gl),
-        ebo: getBuffer(this.gl),
+        vbo: createBuffer(this.gl),
+        ebo: createBuffer(this.gl),
       },
       attributes: {
         a_position: getAttributeLocation(this.gl, program, "a_position"),
         a_texCoord: getAttributeLocation(this.gl, program, "a_texCoord"),
       },
       uniforms: {
-        // u_color: getUniformLocation(this.gl, program, "u_color"),
+        //TEMP: u_color: getUniformLocation(this.gl, program, "u_color"),
         u_tex: getUniformLocation(this.gl, program, "u_tex"),
       },
     }
@@ -229,12 +89,11 @@ class Graphics
     this.gl.clearColor(color.r, color.g, color.b, color.a)
     this.gl.clear(this.gl.COLOR_BUFFER_BIT)
   }
-  //TODO: Handle alpha colors
   setColor (
     color: Color
   )
   {
-    //QUESTION: Does this need to be here?
+    //IDEA: save locally and set uniform on draw calls
     this.gl.useProgram(this.programs.triangle.program)
     this.gl.uniform4f(
       this.programs.triangle.uniforms.u_color,
@@ -250,8 +109,9 @@ class Graphics
   {
     this.gl.useProgram(this.programs.image.program)
     //QUESTION: Should this be done only once?
-    this.gl.activeTexture(this.gl.TEXTURE0)
+    //IDEA: Image object that contains texture
     const texture = this.gl.createTexture()
+    this.gl.activeTexture(this.gl.TEXTURE0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
@@ -307,7 +167,7 @@ class Graphics
       vs.push(v.x, v.y)
       return vs
     }, [] as number[])
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.triangle.buffers.position)
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.triangle.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW)
     this.gl.vertexAttribPointer(
       this.programs.triangle.attributes.a_position,
@@ -317,7 +177,7 @@ class Graphics
       0,
       0
     )
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.triangle.buffers.elements)
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.triangle.buffers.ebo)
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elements), this.gl.STATIC_DRAW)
     this.gl.enableVertexAttribArray(this.programs.triangle.attributes.a_position)
     this.gl.drawElements(

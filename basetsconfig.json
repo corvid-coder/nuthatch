@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2015", 
-    "module": "es2015",
-    "lib": ["ES2017", "DOM", "DOM.Iterable"],
+    "target": "ES2017", 
+    "module": "ES2015",
+    "lib": ["ES2015", "ES2016", "ES2017", "DOM", "DOM.Iterable"],
     "declaration": true,
     "sourceMap": true,
     "rootDirs": ["./src"],

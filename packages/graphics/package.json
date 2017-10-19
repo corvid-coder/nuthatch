@@ -6,16 +6,21 @@
   "main": "./index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "prepublishOnly": "tsc",
-    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
+    "build": "tsc",
+    "dev": "npm run build -- --watch",
     "test": "lite-server"
   },
   "keywords": [],
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@types/webgl2": "0.0.2",
-    "@nuthatch/vector": "1.0.1"
+    "@types/webgl2": "^0.0.2",
+    "@nuthatch/vector": "^1.0.0",
+    "@nuthatch/gl2": "^1.0.0"
+  },
+  "peerDependency": {
+    "@nuthatch/shaders": "^1.0.0"
   },
   "devDependencies": {
     "lite-server": "^2.3.0",

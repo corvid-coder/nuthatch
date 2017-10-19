@@ -1,5 +1,4 @@
 export default class Gamepads {
-  private connected: Boolean[] = [false, false, false, false]
   constructor () {}
   get length (): number {
     return navigator.getGamepads().length

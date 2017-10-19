@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "publish": "npm run build && lerna publish --message \"🔖 Publish %s.\"",
-    "build": "lerna bootstrap --hoist"
+    "build": "lerna run build && lerna bootstrap --hoist"
   },
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
