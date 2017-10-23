@@ -14,8 +14,10 @@
     -   [x] circle
     -   [x] load shader source
     -   [ ] point
+    -   [ ] line
+    -   [ ] text
     -   [x] image
-    -   [ ] setTransformMatrix <!-- QUESTION WHERE SHOULD THIS GO? -->
+    -   [ ] setTransformMatrix
 -   Keyboard
     -   [x] key state
 -   Gamepad
@@ -26,11 +28,13 @@
     -   [ ] clone
     -   [ ] math
 -   Matrix
-    -   [ ] scale
-    -   [ ] translate
-    -   [ ] rotate
-    -   [ ] push <!-- QUESTION: Where does this belong? -->
-    -   [ ] pop
+    -   [x] identity
+    -   [ ] orthographic
+    -   [x] multiplyPoint
+    -   [ ] multiply
+    -   [x] scale
+    -   [x] translate
+    -   [x] rotate
 -   Event Bus
 -   Collision Detection
 -   Runtime
