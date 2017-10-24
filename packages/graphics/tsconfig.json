@@ -1,9 +1,0 @@
-{
-  "extends": "../../basetsconfig",
-  "compilerOptions": {
-    "outDir": "./"
-  },
-  "include": [
-    "index.ts"
-  ]
-}

@@ -17,7 +17,7 @@
     -   [ ] line
     -   [ ] text
     -   [x] image
-    -   [ ] setTransformMatrix
+    -   [x] setTransformMatrix
 -   Keyboard
     -   [x] key state
 -   Gamepad

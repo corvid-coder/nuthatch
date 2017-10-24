@@ -1,6 +1,6 @@
-index.d.ts
-index.js
-index.js.map
+/lib/*.js
+/lib/*.js.map
+/lib/*.d.ts
 
 package-lock.json
 

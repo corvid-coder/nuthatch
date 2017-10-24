@@ -1,2 +1,0 @@
-# @nuthatch/demo-pong
-

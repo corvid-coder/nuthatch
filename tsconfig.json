@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2017", 
+    "module": "ES2015",
+    "lib": ["ES2015", "ES2016", "ES2017", "DOM", "DOM.Iterable"],
+    "declaration": true,
+    "sourceMap": true,
+    "pretty": true,
+    "outDir": "./lib",
+
+    "strict": true,
+    
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    "moduleResolution": "node",
+
+    "inlineSourceMap": false,
+    "removeComments": true
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "/*.js"
+  ]
+}
