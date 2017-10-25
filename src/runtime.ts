@@ -21,10 +21,14 @@ export default class Runtime {
     this.frames += 1
     try {
       this.update((now - this.lastTime) / 1000)
-    } catch (e) {}
+    } catch (e) {
+      console.error(e)
+    }
     try {
       this.draw()
-    } catch (e) {}
+    } catch (e) {
+      console.error(e)
+    }
     this.lastTime = now
   }
   stop () {

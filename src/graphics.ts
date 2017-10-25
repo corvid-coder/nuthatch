@@ -1,5 +1,5 @@
 import { Vector2 } from "./vector.js"
-import { mat4x4 } from "./matrix.js"
+import Matrix, { mat4x4 } from "./matrix.js"
 import {
   Program,
   getContext,
@@ -69,6 +69,8 @@ class Graphics
     }
     this.program = this.programs.triangle
     this.gl.useProgram(program)
+    //TODO: clean this up
+    this.setTransformMatrix(Matrix.identity())
     program = initShaderProgram(
       this.gl,
       await getSource(`${pathToNuthatch}/assets/image.v.glsl`),

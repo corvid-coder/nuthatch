@@ -5,11 +5,6 @@ const image = new Image()
 const graphics = new Graphics(document.body)
 graphics.setup("/")
   .then(() => {
-    graphics.setTransformMatrix([
-      1, 0, 0, 0,
-      0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1])
     graphics.clear({r: 0, g: 0, b: 0, a: 1})
     graphics.setColor({r: 1, g: 1, b: 0, a: 1})
     graphics.rectangle(
