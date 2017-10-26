@@ -30,6 +30,7 @@ class Graphics
   private gl : WebGL2RenderingContext
   private programs: { [index: string]: Program } = {}
   private program: Program
+  private transformMatrix : mat4x4
   constructor (
     target: HTMLElement,
   )
@@ -118,6 +119,7 @@ class Graphics
     m: mat4x4,
   )
   {
+    this.transformMatrix = m
     this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, m)
   }
   image (
@@ -126,6 +128,8 @@ class Graphics
   {
     this.program = this.programs.image
     this.gl.useProgram(this.programs.image.program)
+    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true)
+    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     //QUESTION: Should this be done only once?
     //IDEA: Image object that contains texture
     const texture = this.gl.createTexture()
@@ -139,11 +143,14 @@ class Graphics
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
     //TODO: support image color modulations and alpha
+    // [0, 128] -> [-1, -.38]
+    const x2 = image.naturalWidth/(this.gl.canvas.width / 2)
+    const y2 = image.naturalHeight/(this.gl.canvas.height / 2)
     const vertices = new Float32Array([
-       -1, -1,   0, 0,
-        1, -1,   1, 0,
-       -1,  1,   0, 1,
-        1,  1,   1, 1,
+      0,  0,   0, 0,
+      x2, 0,   1, 0,
+      0, y2,   0, 1,
+      x2, y2,   1, 1,
     ])
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
@@ -182,6 +189,7 @@ class Graphics
   {
     this.program = this.programs.triangle
     this.gl.useProgram(this.programs.triangle.program)
+    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     const positions = vertices.reduce((vs, v) => {
       vs.push(v.x, v.y)
       return vs
@@ -206,6 +214,7 @@ class Graphics
       0
     )
   }
+  // Remove x/y
   circle (
     position: Vector2<number>,
     radius: number,
@@ -242,6 +251,7 @@ class Graphics
       indices,
     )
   }
+  // Remove x/y
   rectangle (
     position: Vector2<number>,
     size: Vector2<number>,

@@ -20,6 +20,7 @@
     -   [ ] line
     -   [ ] text
     -   [x] image
+    -   [ ] quad
     -   [x] setTransformMatrix
 -   Keyboard
     -   [ ] documentation
@@ -39,11 +40,17 @@
     -   [ ] documentation
     -   [x] identity
     -   [ ] orthographic
+    -   [ ] projection
     -   [x] multiplyPoint
     -   [x] multiply
     -   [x] scale
     -   [x] translate
     -   [x] rotate
+-   Game State
+    -   [ ] documentation
+    -   [ ] push
+    -   [ ] pop
+    -   [ ] callbacks
 -   Event Bus
     -   [ ] documentation
 -   Collision Detection
@@ -68,7 +75,10 @@
     -   [x] Pong
     -   [ ] Flappy Bird
         -   [x] Basic Game
-        -   [ ] Images
+        -   [x] Images
+        -   [ ] Animations
         -   [ ] Score
     -   [ ] NES Ice Hockey
     -   [ ] Shipwreckers
+    -   [ ] Joust
+    -   [ ] Frogger

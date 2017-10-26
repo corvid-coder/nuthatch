@@ -20,7 +20,9 @@ graphics.setup("/")
     ]
 
     runtime.update = (dt) => {
-      walls.forEach(w=>w.update(dt))
+      if (birds.length > 0) {
+        walls.forEach(w=>w.update(dt))
+      }
       walls = walls.filter(w=>w.position.x + WALL_WIDTH > -1 )
       while (walls.length < 1) {
         walls.push(new Wall())
