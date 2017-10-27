@@ -34,16 +34,27 @@ export default class Matrix {
       0, 0, 0, 1,
     ]
   }
-  
-  /*
-  [
-    0, 1, 2, 3,
-    4, 5, 6, 7,
-    8, 9, 10, 11,
-    12, 13, 14, 15,
-  ]
-   */
-  static multiply (m1: mat4x4, m2: mat4x4) : mat4x4 {
+  static orthographic (width: number, height: number) : mat4x4 {
+    const left = 0
+    const right = width
+    const top = height
+    const bottom = 0
+    const near = 100
+    const far = -100
+    const lr = 1 / (left - right)
+    const bt = 1 / (bottom - top)
+    const nf = 1 / (near - far)
+    const row0col3 = (left + right) * lr;
+    const row1col3 = (top + bottom) * bt;
+    const row2col3 = (far + near) * nf;
+    return [
+      -2 * lr,  0,      0,      row0col3,
+       0,      -2 * bt, 0,      row1col3,
+       0,       0,      2 * nf, row2col3,
+       0,       0,      0,      1,
+    ]
+  }
+  static dotMultiply (m1: mat4x4, m2: mat4x4) : mat4x4 {
     const a = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];
     const b = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
     const c = m1[0] * m2[2] + m1[1] * m2[6] + m1[2] * m2[10] + m1[3] * m2[14];

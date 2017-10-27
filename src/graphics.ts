@@ -128,7 +128,7 @@ class Graphics
   {
     this.program = this.programs.image
     this.gl.useProgram(this.programs.image.program)
-    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true)
+    this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false)
     this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     //QUESTION: Should this be done only once?
     //IDEA: Image object that contains texture
@@ -143,14 +143,13 @@ class Graphics
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
     //TODO: support image color modulations and alpha
-    // [0, 128] -> [-1, -.38]
-    const x2 = image.naturalWidth/(this.gl.canvas.width / 2)
-    const y2 = image.naturalHeight/(this.gl.canvas.height / 2)
+    const x = image.naturalWidth
+    const y = image.naturalHeight
     const vertices = new Float32Array([
-      0,  0,   0, 0,
-      x2, 0,   1, 0,
-      0, y2,   0, 1,
-      x2, y2,   1, 1,
+       0, y,  0, 0,
+       x, y,  1, 0,
+       0, 0,  0, 1,
+       x, 0,  1, 1,
     ])
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)

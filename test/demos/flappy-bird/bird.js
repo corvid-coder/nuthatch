@@ -1,16 +1,16 @@
-import { graphics, keyboard } from "./game.js"
+import { graphics, keyboard, orthoMatrix } from "./game.js"
 import { GRAVITY } from "./constants.js"
 import Matrix from "/lib/matrix.js"
 import BB from "./bb.js"
 
 export const IMAGE = new Image()
 IMAGE.src = "./fishTile_101.png"
-export const JUMP_FORCE = 2
-export const SIZE = 0.05
+export const JUMP_FORCE = 300
+export const SIZE = 20
 
 export default class Bird {
   constructor () {
-    this.position = {x: 0  , y: 0}
+    this.position = {x: 100, y: 150}
     this.velocity = {x: 0, y: 0}
   }
   update (dt) {
@@ -23,16 +23,14 @@ export default class Bird {
   draw () {
     graphics.setColor({r: 1, g: 0, b: 0, a: 1})
     if (IMAGE.complete) {
-      // graphics.setTransformMatrix(Matrix.translate({x: -this.position.x, y: -this.position.y} ))
-      const sm = Matrix.scale({x: 0.15, y: 0.15  })
-      const om = Matrix.translate({x: -64/150, y: -64/150})
-      const tm = Matrix.translate({x: this.position.x, y: this.position.y })
-      let m = Matrix.multiply(tm, sm)
-      m = Matrix.multiply(m, om)
+      let m = orthoMatrix
+      const tm2 = Matrix.translate({x: -64, y: -64})
+      m = Matrix.dotMultiply(m, Matrix.translate(this.position))
+      m = Matrix.dotMultiply(m, Matrix.scale({x: SIZE / 64, y: SIZE / 64}))
+      m = Matrix.dotMultiply(m, Matrix.translate({x: -64, y: -64}))
       graphics.setTransformMatrix(m)
       graphics.image(IMAGE)
     }
-    graphics.setTransformMatrix(Matrix.identity())
   }
   getShapes () {
     return [

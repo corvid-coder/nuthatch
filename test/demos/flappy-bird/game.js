@@ -1,11 +1,14 @@
 import Runtime from "/lib/runtime.js"
 import Graphics from "/lib/graphics.js"
 import Keyboard from "/lib/keyboard.js"
+import Matrix from "/lib/matrix.js"
 import Bird from "./bird.js"
 import Wall, { WIDTH as WALL_WIDTH } from "./wall.js"
 
 export const keyboard = new Keyboard()
 export const graphics = new Graphics(document.body)
+
+export const orthoMatrix = Matrix.orthographic(300, 300)
 
 graphics.setup("/")
   .then(() => {

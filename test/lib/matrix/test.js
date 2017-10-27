@@ -17,7 +17,7 @@ const v2 = {x: 1, y: 2}
     25, 26, 27, 28,
     29, 30, 31, 32,
   ]
-  const result = Matrix.multiply(m1, m2)
+  const result = Matrix.dotMultiply(m1, m2)
   Matrix.print(result)
 }
 {
@@ -45,4 +45,10 @@ const v2 = {x: 1, y: 2}
   const result = Matrix.multiplyPoint(M, v2)
   console.log(result)
 }
-//TODO: Do a combinatory transformation
+{
+  const M = Matrix.orthographic(300, 300)
+  Matrix.print(M)
+  const p = {x: 150, y:300}
+  const result = Matrix.multiplyPoint(M, p)
+  console.log(result)
+}

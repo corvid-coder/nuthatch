@@ -10,10 +10,10 @@ export default class Paddle {
     this.speed = 1
   }
   update (dt) {
-    if (keyboard.isKeyDown("ArrowUp")) {
+    if (keyboard.isKeyDown("ArrowDown")) {
       this.position.y -= this.speed * dt
     }
-    if (keyboard.isKeyDown("ArrowDown")) {
+    if (keyboard.isKeyDown("ArrowUp")) {
       this.position.y += this.speed * dt
     }
     this.position.y = Math.max(this.position.y, -1)

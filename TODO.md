@@ -19,6 +19,9 @@
     -   [ ] point
     -   [ ] line
     -   [ ] text
+        -   [ ] bitmap
+        -   [ ] vector (otf)
+        -   [ ] bitfield
     -   [x] image
     -   [ ] quad
     -   [x] setTransformMatrix
@@ -39,14 +42,19 @@
 -   Matrix
     -   [ ] documentation
     -   [x] identity
-    -   [ ] orthographic
+    -   [x] orthographic
     -   [ ] projection
     -   [x] multiplyPoint
     -   [x] multiply
     -   [x] scale
     -   [x] translate
     -   [x] rotate
--   Game State
+-   MatrixState
+    -   [ ] documentation
+    -   [ ] push
+    -   [ ] pop
+    -   [ ] top
+-   GameState
     -   [ ] documentation
     -   [ ] push
     -   [ ] pop

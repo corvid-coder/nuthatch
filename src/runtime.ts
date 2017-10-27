@@ -17,19 +17,11 @@ export default class Runtime {
   draw () {}
   tick () {
     const now = performance.now()
-    this.rafId = requestAnimationFrame(this._tick)
     this.frames += 1
-    try {
-      this.update((now - this.lastTime) / 1000)
-    } catch (e) {
-      console.error(e)
-    }
-    try {
-      this.draw()
-    } catch (e) {
-      console.error(e)
-    }
+    this.update((now - this.lastTime) / 1000)
+    this.draw()
     this.lastTime = now
+    this.rafId = requestAnimationFrame(this._tick)
   }
   stop () {
     cancelAnimationFrame(this.rafId)
