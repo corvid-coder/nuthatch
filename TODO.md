@@ -23,7 +23,7 @@
         -   [ ] vector (otf)
         -   [ ] bitfield
     -   [x] image
-    -   [ ] quad
+    -   [x] sprite
     -   [x] setTransformMatrix
 -   Keyboard
     -   [ ] documentation
@@ -39,6 +39,8 @@
     -   [ ] documentation
     -   [ ] clone
     -   [ ] math
+    -   [ ] getters (x, y, r, g, b, a)
+    -   [ ] setters
 -   Matrix
     -   [ ] documentation
     -   [x] identity
@@ -61,6 +63,9 @@
     -   [ ] callbacks
 -   Event Bus
     -   [ ] documentation
+    -   [ ] on
+    -   [ ] off
+    -   [ ] trigger
 -   Collision Detection
     -   [ ] documentation
 -   Runtime
@@ -69,6 +74,7 @@
 -   Debug
     -   [ ] documentation
     -   [x] logger
+    -   [ ] assert
     -   [ ] profiler
 -   Sensors (for phones usually)
     -   [ ] documentation
@@ -80,7 +86,8 @@
     -   [ ] Location
     -   [ ] Battery
 -   Demos
-    -   [x] Pong
+    -   [ ] Pong
+        -   [x] Basic Game
     -   [ ] Flappy Bird
         -   [x] Basic Game
         -   [x] Images

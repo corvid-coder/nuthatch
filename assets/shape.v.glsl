@@ -5,5 +5,5 @@ in vec4 a_position;
 uniform mat4 u_trans;
 
 void main () {
-  gl_Position = u_trans * vec4(a_position.x, a_position.y, a_position.z, a_position.w);
+  gl_Position = u_trans * a_position;
 }

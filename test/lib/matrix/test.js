@@ -1,5 +1,6 @@
 import Matrix from "/lib/matrix.js"
 
+//TODO: Need asserts
 const I = Matrix.identity()
 console.log(I)
 Matrix.print(I)

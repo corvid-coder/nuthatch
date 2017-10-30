@@ -13,6 +13,8 @@ export class Logger {
   }
 }
 
+//TODO: Assert
+
 export class Profiler {
   
 }
