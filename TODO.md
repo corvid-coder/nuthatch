@@ -86,6 +86,8 @@
     -   [ ] Location
     -   [ ] Battery
 -   Demos
+    -   [x] Spritesheet Animation
+    -   [ ] Translation Lerp
     -   [ ] Pong
         -   [x] Basic Game
     -   [ ] Flappy Bird

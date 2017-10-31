@@ -1,4 +1,4 @@
-import { Vector2 } from "./vector.js"
+import { Vector2, Color } from "./vector.js"
 import Matrix, { mat4x4 } from "./matrix.js"
 import {
   Program,
@@ -24,6 +24,8 @@ class Graphics
   private program: Program
   private transformMatrix : mat4x4 = Matrix.identity()
   private color : Color = {r:1, g:1, b:1, a:1}
+  private textureCache: WeakMap<HTMLImageElement, WebGLTexture> = new WeakMap()
+  private lastTextureUsed: HTMLImageElement
   constructor (
     target: HTMLElement = document.body,
     size: Vector2<number> = {x: 300, y: 300},
@@ -105,17 +107,18 @@ class Graphics
   {
     this.transformMatrix = m
   }
-  image (
-    image: HTMLImageElement
+  setTexture(
+    image: HTMLImageElement,
   )
   {
-    this.program = this.programs.image
-    this.gl.useProgram(this.programs.image.program)
-    // this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false)
-    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
-    //QUESTION: Should this be done only once?
-    //IDEA: Image object that contains texture
-    const texture = this.gl.createTexture()
+    if (this.lastTextureUsed === image) {
+      return
+    }
+    let texture = this.textureCache.get(image)
+    if (!texture) {
+      texture = this.gl.createTexture()
+      this.textureCache.set(image, texture)
+    }
     this.gl.activeTexture(this.gl.TEXTURE0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
@@ -125,6 +128,16 @@ class Graphics
     this.gl.uniform1i(this.programs.image.uniforms.u_tex, 0)
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+    this.lastTextureUsed = image
+  }
+  image (
+    image: HTMLImageElement
+  )
+  {
+    this.program = this.programs.image
+    this.gl.useProgram(this.programs.image.program)
+    this.setTexture(image)
+    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     this.gl.uniform4f(
       this.program.uniforms.u_color,
       this.color.r,
@@ -162,6 +175,7 @@ class Graphics
     )
     const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.image.buffers.ebo)
+    //QUESTION: Can this be cached?
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
     this.gl.drawElements(
       this.gl.TRIANGLES,
@@ -178,20 +192,8 @@ class Graphics
   {
     this.program = this.programs.image
     this.gl.useProgram(this.programs.image.program)
-    // this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false)
     this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
-    //QUESTION: Should this be done only once?
-    //IDEA: Image object that contains texture
-    const texture = this.gl.createTexture()
-    this.gl.activeTexture(this.gl.TEXTURE0)
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-    this.gl.uniform1i(this.programs.image.uniforms.u_tex, 0)
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
-                  this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+    this.setTexture(image)
     this.gl.uniform4f(
       this.program.uniforms.u_color,
       this.color.r,
@@ -231,6 +233,7 @@ class Graphics
     )
     const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.image.buffers.ebo)
+    //QUESTION: Can this be cached?
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
     this.gl.drawElements(
       this.gl.TRIANGLES,
