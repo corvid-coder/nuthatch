@@ -74,8 +74,8 @@
 -   Debug
     -   [ ] documentation
     -   [x] logger
-    -   [ ] assert
-    -   [ ] profiler
+    -   [x] assert
+    -   [x] profiler
 -   Sensors (for phones usually)
     -   [ ] documentation
     -   [ ] Ambient Light

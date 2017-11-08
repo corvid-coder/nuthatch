@@ -116,7 +116,8 @@ class Graphics
     }
     let texture = this.textureCache.get(image)
     if (!texture) {
-      texture = this.gl.createTexture()
+      //FIXME: Convert to a non ! expression
+      texture = this.gl.createTexture()!
       this.textureCache.set(image, texture)
     }
     this.gl.activeTexture(this.gl.TEXTURE0)
