@@ -1,4 +1,4 @@
-import { Logger, assert, Profiler } from "/lib/debug.js"
+import { Logger, assert, Profiler } from "/debug.js"
 
 const logger = new Logger()
 

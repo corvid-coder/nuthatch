@@ -1,3 +1,5 @@
+import { assert } from "./debug.js"
+
 export interface Program {
   program: WebGLProgram,
   buffers: {[index: string]: WebGLBuffer},
@@ -16,10 +18,8 @@ export function getContext(
       stencil: false,
       premultipliedAlpha: true,
       preserveDrawingBuffer: true,
-    })
-    if (!gl) {
-      throw new Error(`Failed to get "webgl2" rendering context from browser.`)
-    }
+    })!
+    assert(gl !== null, `Failed to get "webgl2" rendering context from browser.`)
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
     return gl as WebGL2RenderingContext
@@ -33,19 +33,15 @@ export function initShaderProgram (
 {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
-  const shaderProgram = gl.createProgram()
-  if (!shaderProgram) {
-    throw new Error(`Failed to create WebGL2Program`)
-  }
+  const shaderProgram = gl.createProgram()!
+  assert(shaderProgram !== null, `Failed to create WebGL2Program`)
   gl.attachShader(shaderProgram, vertexShader)
   gl.attachShader(shaderProgram, fragmentShader)
   gl.linkProgram(shaderProgram)
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-    throw new Error(`
-      Unable to initialize the shader program:
-        ${gl.getProgramInfoLog(shaderProgram)}
-      `)
-  }
+  assert(
+    !!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS),
+    `Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`
+  )
   return shaderProgram
 }
 
@@ -55,17 +51,14 @@ export function loadShader(
   source: string)
   : WebGLShader
 {
-  const shader = gl.createShader(type)
-  if (!shader) {
-    throw new Error(`Failed to create WebGL2Shader`)
-  }
+  const shader = gl.createShader(type)!
+  assert(shader !== null, `Failed to create WebGL2Shader`)
   gl.shaderSource(shader, source)
   gl.compileShader(shader)
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const message = gl.getShaderInfoLog(shader)
-    gl.deleteShader(shader);
-    throw new Error(`An error occurred compiling the shaders: ${message}`);
-  }
+  assert(
+    !!gl.getShaderParameter(shader, gl.COMPILE_STATUS),
+    `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`
+  )
   return shader
 }
 
@@ -75,10 +68,8 @@ export function getAttributeLocation (
   label: string
 ) : number
 {
-  const location = gl.getAttribLocation(program, label)
-  if (location === null) {
-    throw new Error(`Failed to get attribute location of ${label}`)
-  }
+  const location = gl.getAttribLocation(program, label)!
+  assert(location !== null, `Failed to get attribute location of ${label}`)
   return location
 }
 
@@ -86,10 +77,8 @@ export function createBuffer (
   gl: WebGL2RenderingContext
 ) : WebGLBuffer
 {
-  const buffer = gl.createBuffer()
-  if (buffer === null) {
-    throw new Error(`Failed to create buffer`)
-  }
+  const buffer = gl.createBuffer()!
+  assert(buffer !== null, `Failed to create buffer`)
   return buffer
 }
 
@@ -99,9 +88,16 @@ export function getUniformLocation(
   label: string
 ) : WebGLUniformLocation
 {
-  const location = gl.getUniformLocation(program, label)
-  if (location === null) {
-    throw new Error(`Failed to get uniform location of ${label}`)
-  }
+  const location = gl.getUniformLocation(program, label)!
+  assert(location !== null, `Failed to get uniform location of ${label}`)
   return location
+}
+
+export function createTexture(
+  gl: WebGL2RenderingContext,
+) : WebGLTexture
+{
+  const texture = gl.createTexture()!
+  assert(texture !== null, `Failed to create texture`)
+  return texture
 }

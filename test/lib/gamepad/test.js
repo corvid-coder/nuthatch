@@ -1,4 +1,4 @@
-import Gamepads from "/lib/gamepad.js"
+import Gamepads from "/gamepad.js"
 
 const gamepads = new Gamepads()
 setInterval(() => {

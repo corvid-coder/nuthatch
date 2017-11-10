@@ -1,4 +1,5 @@
 import { Vector2, Color } from "./vector.js"
+import { getFile } from "./utilities.js"
 import Matrix, { mat4x4 } from "./matrix.js"
 import {
   Program,
@@ -7,15 +8,8 @@ import {
   getAttributeLocation,
   getUniformLocation,
   createBuffer,
+  createTexture,
 } from "./webgl2.js"
-
-//QUESTION: Should this live here?
-function getSource (
-  filename: string
-) : Promise<string> {
-  return fetch(filename)
-    .then((res) => res.text())
-}
 
 class Graphics
 {
@@ -47,8 +41,8 @@ class Graphics
     let program
     program = initShaderProgram(
       this.gl,
-      await getSource(`${pathToNuthatch}/assets/shape.v.glsl`),
-      await getSource(`${pathToNuthatch}/assets/shape.f.glsl`),
+      await getFile(`${pathToNuthatch}/assets/shape.v.glsl`),
+      await getFile(`${pathToNuthatch}/assets/shape.f.glsl`),
     )
     this.programs.triangle = {
       program: program,
@@ -66,8 +60,8 @@ class Graphics
     }
     program = initShaderProgram(
       this.gl,
-      await getSource(`${pathToNuthatch}/assets/image.v.glsl`),
-      await getSource(`${pathToNuthatch}/assets/image.f.glsl`),
+      await getFile(`${pathToNuthatch}/assets/image.v.glsl`),
+      await getFile(`${pathToNuthatch}/assets/image.f.glsl`),
     )
     this.programs.image = {
       program: program,
@@ -116,8 +110,7 @@ class Graphics
     }
     let texture = this.textureCache.get(image)
     if (!texture) {
-      //FIXME: Convert to a non ! expression
-      texture = this.gl.createTexture()!
+      texture = createTexture(this.gl)
       this.textureCache.set(image, texture)
     }
     this.gl.activeTexture(this.gl.TEXTURE0)

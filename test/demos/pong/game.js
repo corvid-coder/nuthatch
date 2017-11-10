@@ -1,6 +1,6 @@
-import Runtime from "/lib/runtime.js"
-import Graphics from "/lib/graphics.js"
-import Keyboard from "/lib/keyboard.js"
+import Runtime from "/runtime.js"
+import Graphics from "/graphics.js"
+import Keyboard from "/keyboard.js"
 import Ball from "./ball.js"
 import Paddle from "./paddle.js"
 

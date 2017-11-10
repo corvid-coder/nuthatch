@@ -1,5 +1,5 @@
-import Graphics from "/lib/graphics.js"
-import Matrix from "/lib/matrix.js"
+import Graphics from "/graphics.js"
+import Matrix from "/matrix.js"
 
 const image = new Image()
 const spritesheet = new Image()

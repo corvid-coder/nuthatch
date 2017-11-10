@@ -1,7 +1,7 @@
-import Runtime from "/lib/runtime.js"
-import Graphics from "/lib/graphics.js"
-import Keyboard from "/lib/keyboard.js"
-import Matrix from "/lib/matrix.js"
+import Runtime from "/runtime.js"
+import Graphics from "/graphics.js"
+import Keyboard from "/keyboard.js"
+import Matrix from "/matrix.js"
 import Bird from "./bird.js"
 import Wall, { WIDTH as WALL_WIDTH } from "./wall.js"
 

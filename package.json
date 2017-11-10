@@ -2,6 +2,7 @@
   "name": "nuthatch",
   "version": "1.0.0",
   "description": "A collection of utilities for making games. 🎮 ",
+  "types": "./types",
   "keywords": [
     "game",
     "engine"
@@ -18,10 +19,10 @@
     "lite-server": "^2.3.0",
     "remark-lint": "^6.0.1",
     "remark-lint-checkbox-content-indent": "^1.0.1",
-    "remark-preset-lint-recommended": "^3.0.1"
+    "remark-preset-lint-recommended": "^3.0.1",
+    "typescript": "^2.6.1"
   },
   "dependencies": {
-    "@types/webgl2": "0.0.2",
-    "typescript": "^2.5.3"
+    "@types/webgl2": "0.0.2"
   }
 }

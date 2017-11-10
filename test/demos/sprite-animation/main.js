@@ -1,6 +1,6 @@
-import Runtime from "/lib/runtime.js"
-import Graphics from "/lib/graphics.js"
-import Matrix from "/lib/matrix.js"
+import Runtime from "/runtime.js"
+import Graphics from "/graphics.js"
+import Matrix from "/matrix.js"
 
 const SPRITESHEET = new Image()
 SPRITESHEET.src = "./sokoban_spritesheet@2.png"

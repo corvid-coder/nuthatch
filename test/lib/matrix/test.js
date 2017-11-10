@@ -1,6 +1,6 @@
-import Matrix from "/lib/matrix.js"
+import Matrix from "/matrix.js"
 
-//TODO: Need asserts
+//TODO: Need asserts to test validity
 const I = Matrix.identity()
 console.log(I)
 Matrix.print(I)

@@ -1,4 +1,4 @@
-import Keyboard from "/lib/keyboard.js"
+import Keyboard from "/keyboard.js"
 
 const keyboard = new Keyboard()
 setInterval(() => {

@@ -1,6 +1,6 @@
 import { graphics, keyboard, orthoMatrix } from "./game.js"
 import { GRAVITY } from "./constants.js"
-import Matrix from "/lib/matrix.js"
+import Matrix from "/matrix.js"
 import BB from "./bb.js"
 
 export const IMAGE = new Image()

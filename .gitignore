@@ -1,6 +1,6 @@
-/lib/*.js
-/lib/*.js.map
-/lib/*.d.ts
+types/
+/*.js
+/*.js.map
 
 package-lock.json
 

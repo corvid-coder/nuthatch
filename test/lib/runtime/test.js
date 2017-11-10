@@ -1,4 +1,4 @@
-import Runtime from "/lib/runtime.js"
+import Runtime from "/runtime.js"
 
 const runtime = new Runtime()
 runtime.update = (dt) => {
