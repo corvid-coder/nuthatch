@@ -38,7 +38,11 @@
 -   Vector
     -   [ ] documentation
     -   [ ] clone
-    -   [ ] math
+    -   [ ] normalize
+    -   [ ] rotate
+    -   [ ] add
+    -   [ ] dotProduct
+    -   [ ] multiply
     -   [ ] getters (x, y, r, g, b, a)
     -   [ ] setters
 -   Matrix

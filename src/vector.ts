@@ -8,3 +8,15 @@ export interface Color {
   b: number,
   a: number,
 }
+
+export class Vector2<T> {
+  static rotate () {
+    
+  }
+  static normalize () {
+    
+  }
+  static dotProduct () {
+    
+  }
+}

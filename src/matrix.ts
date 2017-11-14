@@ -54,6 +54,9 @@ export default class Matrix {
        0,       0,      0,      1,
     ]
   }
+  static dotMultiplyAll (ms: mat4x4[]) : mat4x4 {
+    return ms.reduce((r, m)=>this.dotMultiply(m, r))
+  }
   static dotMultiply (m1: mat4x4, m2: mat4x4) : mat4x4 {
     const a = m1[0] * m2[0] + m1[1] * m2[4] + m1[2] * m2[8] + m1[3] * m2[12];
     const b = m1[0] * m2[1] + m1[1] * m2[5] + m1[2] * m2[9] + m1[3] * m2[13];
