@@ -1,8 +1,10 @@
 import Matrix from "/matrix.js"
-import { graphics, keyboard, orthoMatrix } from "./game.js"
+import { Vector2 } from "/vector.js"
+import { graphics, keyboard, orthoMatrix, cannonballs } from "./game.js"
 import { SPRITESHEET } from "./constants.js"
+import Cannonball from "./cannonball.js"
 
-const BOAT_SPRITES = [
+const SPRITES = [
   [
     [
       {
@@ -30,40 +32,69 @@ const BOAT_SPRITES = [
   ],
 ]
 
-const BOAT_TURN_SPEED = 0.3 * 2 * Math.PI
-const BOAT_SPEED = 200
-const BOAT_SIZE = 0.5
+const TURN_SPEED = 0.3 * 2 * Math.PI
+const SPEED = 125
+const SIZE = 0.5
+const COOL_DOWN = 0.2
 
 export default class Boat {
-  constructor () {
-    this.velocity = BOAT_SPEED
-    this.angle = 0
-    this.position = { x: 0, y: 0 }
+  constructor (player = 1) {
+    this.lastShoot = COOL_DOWN
+    this.player = player
+    this.velocity = SPEED
+    if (this.player === 1) {
+      this.angle = 0
+      this.position = { x: 0, y: 0 }
+      this.controls = {
+        left: "ArrowLeft",
+        right: "ArrowRight",
+        shoot: "ArrowUp",
+      }
+      this.sprite = SPRITES[0][0]
+    } else {
+      this.angle = Math.PI
+      this.position = { x: 800, y: 600 }
+      this.controls = {
+        left: "KeyA",
+        right: "KeyD",
+        shoot: "KeyW",
+      }
+      this.sprite = SPRITES[1][0]
+    }
   }
   update (dt) {
-    if (keyboard.isKeyDown("ArrowLeft")) {
-      this.angle += BOAT_TURN_SPEED * dt
+    this.lastShoot += dt
+    if (keyboard.isKeyDown(this.controls.left)) {
+      this.angle += TURN_SPEED * dt
     }
-    if (keyboard.isKeyDown("ArrowRight")) {
-      this.angle += -BOAT_TURN_SPEED * dt
+    if (keyboard.isKeyDown(this.controls.right)) {
+      this.angle += -TURN_SPEED * dt
     }
-    //TODO: Vector2.add(this.position, Vector2.mult(this.velocity, dt))
-    this.position.x += this.velocity * dt * Math.cos(this.angle + Math.PI / 2)
-    this.position.y += this.velocity * dt * Math.sin(this.angle + Math.PI / 2)
+    if (this.lastShoot > COOL_DOWN) {
+      if (keyboard.isKeyDown(this.controls.shoot)) {
+        this.shoot()
+        this.lastShoot = 0
+      }
+    }
+    const velocityV = Vector2.multiply(Vector2.rotate({x: 0, y: 1}, this.angle), this.velocity)
+    this.position = Vector2.add(this.position, Vector2.multiply(velocityV, dt))
+  }
+  shoot () {
+    cannonballs.add(new Cannonball(this.position, this.angle))
   }
   draw () {
     const ms = [
       Matrix.translate({ x: -33, y: -56.5 }),
       Matrix.rotate(Math.PI),
       Matrix.rotate(this.angle),
+      Matrix.scale({x: SIZE, y: SIZE}),
       Matrix.translate(this.position),
-      Matrix.scale({x: BOAT_SIZE, y: BOAT_SIZE}),
       orthoMatrix,
     ]
     graphics.setTransformMatrix(Matrix.dotMultiplyAll(ms))
     if (SPRITESHEET.complete) {
       graphics.sprite(SPRITESHEET,
-        ...BOAT_SPRITES[0][0]
+        ...this.sprite
       )
     }
   }

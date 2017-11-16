@@ -22,7 +22,7 @@ class Graphics
   private lastTextureUsed: HTMLImageElement
   constructor (
     target: HTMLElement = document.body,
-    size: Vector2<number> = {x: 300, y: 300},
+    size: Vector2 = {x: 300, y: 300},
     
   )
   {
@@ -180,8 +180,8 @@ class Graphics
   }
   sprite (
     image: HTMLImageElement,
-    position: Vector2<number>,
-    size: Vector2<number>,
+    position: Vector2,
+    size: Vector2,
   )
   {
     this.program = this.programs.image
@@ -195,10 +195,10 @@ class Graphics
       this.color.b,
       this.color.a,
     )
-    const ss: Vector2<number> = {x: image.naturalWidth, y: image.naturalHeight}
+    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
     const { x, y } = size
-    const tcl: Vector2<number> = {x: position.x / ss.x, y: position.y / ss.y}
-    const tch: Vector2<number> = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
+    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
+    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
     const vertices = new Float32Array([
        0, y,  tcl.x, tcl.y,
        x, y,  tch.x, tcl.y,
@@ -237,7 +237,7 @@ class Graphics
     )
   }
   private triangles (
-    vertices: Vector2<number>[],
+    vertices: Vector2[],
     elements: number[],
   )
   {
@@ -277,7 +277,7 @@ class Graphics
   }
   // Remove x/y
   circle (
-    position: Vector2<number>,
+    position: Vector2,
     radius: number,
     segments: number = 26,
   )
@@ -300,7 +300,7 @@ class Graphics
     )
   }
   polygon (
-    vertices :Vector2<number>[]
+    vertices :Vector2[]
   )
   {
     const indices = []
@@ -314,8 +314,8 @@ class Graphics
   }
   // Remove x/y
   rectangle (
-    position: Vector2<number>,
-    size: Vector2<number>,
+    position: Vector2,
+    size: Vector2,
   )
   {
     this.triangles(
@@ -329,9 +329,9 @@ class Graphics
     )
   }
   triangle (
-    v1: Vector2<number>,
-    v2: Vector2<number>,
-    v3: Vector2<number>,
+    v1: Vector2,
+    v2: Vector2,
+    v3: Vector2,
   )
   {
     this.triangles(
