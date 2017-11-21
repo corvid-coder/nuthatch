@@ -1,7 +1,7 @@
 import Matrix from "/matrix.js"
 import { Vector2 } from "/vector.js"
-import { graphics, orthoMatrix } from "./game.js"
-import { SPRITESHEET } from "./constants.js"
+import { graphics, orthoMatrix, drawShape } from "./game.js"
+import { SPRITESHEET, DEBUG } from "./constants.js"
 
 const SPRITE = [
   {
@@ -11,12 +11,14 @@ const SPRITE = [
   },
 ]
 
-const SIZE = 1
+const SCALE = 1
+const RADIUS = 6
 const SPEED = 300
 const SECONDS_TO_LIVE = 1
 
 export default class Cannonball {
-  constructor (position, angle) {
+  constructor (originator, position, angle) {
+    this.originator = originator
     this.REMOVE_ME = false
     this.position = position
     this.angle = angle
@@ -35,7 +37,7 @@ export default class Cannonball {
     const ms = [
       Matrix.translate({ x: -6, y: -6 }),
       Matrix.rotate(this.angle),
-      Matrix.scale({x: SIZE, y: SIZE}),
+      Matrix.scale({x: SCALE, y: SCALE}),
       Matrix.translate(this.position),
       orthoMatrix,
     ]
@@ -45,5 +47,19 @@ export default class Cannonball {
         ...SPRITE
       )
     }
+    if (DEBUG) {
+      drawShape(this.toShape())
+    }
+  }
+  toShape () {
+    const ms = [
+      Matrix.translate({ x: -6, y: -6 }),
+      Matrix.rotate(this.angle),
+      Matrix.scale({x: SCALE, y: SCALE}),
+      Matrix.translate(this.position),
+    ]
+    const m = Matrix.dotMultiplyAll(ms)
+    const {x, y} = this.position
+    return new SAT.Circle(new SAT.Vector(x, y), RADIUS)
   }
 }

@@ -1,7 +1,7 @@
 import Matrix from "/matrix.js"
 import { Vector2 } from "/vector.js"
-import { graphics, keyboard, orthoMatrix, cannonballs } from "./game.js"
-import { SPRITESHEET } from "./constants.js"
+import { graphics, keyboard, orthoMatrix, cannonballs, drawShape } from "./game.js"
+import { SPRITESHEET, DEBUG } from "./constants.js"
 import Cannonball from "./cannonball.js"
 
 const SPRITES = [
@@ -35,6 +35,8 @@ const SPRITES = [
 const TURN_SPEED = 0.3 * 2 * Math.PI
 const SPEED = 125
 const SIZE = 0.5
+const WIDTH = 66
+const HEIGHT = 113
 const COOL_DOWN = 0.2
 
 export default class Boat {
@@ -80,7 +82,7 @@ export default class Boat {
     this.position = Vector2.add(this.position, Vector2.multiply(velocityV, dt))
   }
   shoot () {
-    cannonballs.add(new Cannonball(this.position, this.angle))
+    cannonballs.add(new Cannonball(this, this.position, this.angle))
   }
   draw () {
     const ms = [
@@ -97,5 +99,26 @@ export default class Boat {
         ...this.sprite
       )
     }
+    if (DEBUG) {
+      drawShape(this.toShape())
+    }
+  }
+  toShape () {
+    const ms = [
+      Matrix.translate({ x: -33, y: -56.5 }),
+      Matrix.rotate(Math.PI),
+      Matrix.rotate(this.angle),
+      Matrix.scale({x: SIZE, y: SIZE}),
+      Matrix.translate(this.position),
+    ]
+    const m = Matrix.dotMultiplyAll(ms)
+    const points = [
+       Matrix.multiplyPoint(m, {x: 0, y: 0}),
+       Matrix.multiplyPoint(m, {x: WIDTH, y: 0}),
+       Matrix.multiplyPoint(m, {x: WIDTH, y: HEIGHT}),
+       Matrix.multiplyPoint(m, {x: 0, y: HEIGHT}),
+    ]
+    const shape = new SAT.Polygon(new SAT.Vector(0, 0), points)
+    return shape
   }
 }

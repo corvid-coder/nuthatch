@@ -81,7 +81,7 @@ export default class Matrix {
       m, n, o, p,
     ]
   }
-  static multiplyPoint (m: mat4x4, v: Vector2<number>) : Vector2<number> {
+  static multiplyPoint (m: mat4x4, v: Vector2) : Vector2 {
     const {x, y} = v
     //NOTE: z is always 0, w is always 1 for 2d space
     const z = 0
@@ -91,13 +91,13 @@ export default class Matrix {
       y: x * m[4] + y * m[5] + z * m[6] + w * m[7],
     }
   }
-  static translate (v: Vector2<number>) : mat4x4 {
+  static translate (v: Vector2) : mat4x4 {
     const m = Matrix.identity()
     m[3] += v.x
     m[7] += v.y
     return m
   }
-  static scale (v: Vector2<number>) : mat4x4 {
+  static scale (v: Vector2) : mat4x4 {
     const m = Matrix.identity()
     m[0] *= v.x
     m[5] *= v.y
