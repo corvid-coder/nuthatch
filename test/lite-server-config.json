@@ -1,7 +1,7 @@
 {
   "port": 3000,
   "ui": false,
-  "files": ["./test/**", "./lib/**/*.js", "./assets/**/*.glsl"],
+  "files": ["./test/**", "./*.js", "./assets/**/*.glsl"],
   "watchOptions": {
     "ignoreInitial": true
   },

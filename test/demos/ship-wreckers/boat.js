@@ -13,6 +13,20 @@ const SPRITES = [
         x: 66, y: 113
       },
     ],
+    [
+      {
+        x: 340, y: 345
+      }, {
+        x: 66, y: 113
+      },
+    ],
+    [
+      {
+        x: 272, y: 115
+      }, {
+        x: 66, y: 113
+      },
+    ],
   ],
   [
     [
@@ -29,6 +43,13 @@ const SPRITES = [
         x: 66, y: 113
       },
     ],
+    [
+      {
+        x: 272, y: 230
+      }, {
+        x: 66, y: 113
+      },
+    ],
   ],
 ]
 
@@ -37,32 +58,42 @@ const SPEED = 125
 const SIZE = 0.5
 const WIDTH = 66
 const HEIGHT = 113
-const COOL_DOWN = 0.2
+const COOL_DOWN = 1
 
 export default class Boat {
   constructor (player = 1) {
     this.lastShoot = COOL_DOWN
     this.player = player
     this.velocity = SPEED
+    this.health = 3
     if (this.player === 1) {
       this.angle = 0
-      this.position = { x: 0, y: 0 }
+      this.position = { x: 50, y: 50 }
       this.controls = {
         left: "ArrowLeft",
         right: "ArrowRight",
         shoot: "ArrowUp",
       }
-      this.sprite = SPRITES[0][0]
+      this.sprites = SPRITES[0]
     } else {
       this.angle = Math.PI
-      this.position = { x: 800, y: 600 }
+      this.position = { x: 750, y: 550 }
       this.controls = {
         left: "KeyA",
         right: "KeyD",
         shoot: "KeyW",
       }
-      this.sprite = SPRITES[1][0]
+      this.sprites = SPRITES[1]
     }
+  }
+  damage () {
+    this.health -= 1
+    if (this.health < 1) {
+      this.REMOVE_ME = true
+    }
+  }
+  shoot () {
+    cannonballs.add(new Cannonball(this, this.position, this.angle))
   }
   update (dt) {
     this.lastShoot += dt
@@ -81,9 +112,6 @@ export default class Boat {
     const velocityV = Vector2.multiply(Vector2.rotate({x: 0, y: 1}, this.angle), this.velocity)
     this.position = Vector2.add(this.position, Vector2.multiply(velocityV, dt))
   }
-  shoot () {
-    cannonballs.add(new Cannonball(this, this.position, this.angle))
-  }
   draw () {
     const ms = [
       Matrix.translate({ x: -33, y: -56.5 }),
@@ -96,7 +124,7 @@ export default class Boat {
     graphics.setTransformMatrix(Matrix.dotMultiplyAll(ms))
     if (SPRITESHEET.complete) {
       graphics.sprite(SPRITESHEET,
-        ...this.sprite
+        ...this.sprites[3 - this.health]
       )
     }
     if (DEBUG) {

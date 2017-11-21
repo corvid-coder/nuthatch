@@ -124,31 +124,8 @@ class Graphics
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
     this.lastTextureUsed = image
   }
-  image (
-    image: HTMLImageElement
-  )
+  private drawImage ()
   {
-    this.program = this.programs.image
-    this.gl.useProgram(this.programs.image.program)
-    this.setTexture(image)
-    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
-    this.gl.uniform4f(
-      this.program.uniforms.u_color,
-      this.color.r,
-      this.color.g,
-      this.color.b,
-      this.color.a,
-    )
-    const x = image.naturalWidth
-    const y = image.naturalHeight
-    const vertices = new Float32Array([
-       0, y,  0, 0,
-       x, y,  1, 0,
-       0, 0,  0, 1,
-       x, 0,  1, 1,
-    ])
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
     this.gl.enableVertexAttribArray(this.programs.image.attributes.a_position)
     this.gl.vertexAttribPointer(
       this.programs.image.attributes.a_position,
@@ -177,6 +154,33 @@ class Graphics
       this.gl.UNSIGNED_SHORT,
       0
     )
+  }
+  image (
+    image: HTMLImageElement
+  )
+  {
+    this.program = this.programs.image
+    this.gl.useProgram(this.programs.image.program)
+    this.setTexture(image)
+    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
+    this.gl.uniform4f(
+      this.program.uniforms.u_color,
+      this.color.r,
+      this.color.g,
+      this.color.b,
+      this.color.a,
+    )
+    const x = image.naturalWidth
+    const y = image.naturalHeight
+    const vertices = new Float32Array([
+       0, y,  0, 0,
+       x, y,  1, 0,
+       0, 0,  0, 1,
+       x, 0,  1, 1,
+    ])
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
+    this.drawImage()
   }
   sprite (
     image: HTMLImageElement,
@@ -207,34 +211,7 @@ class Graphics
     ])
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
-    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_position)
-    this.gl.vertexAttribPointer(
-      this.programs.image.attributes.a_position,
-      2,
-      this.gl.FLOAT,
-      false,
-      4 * Float32Array.BYTES_PER_ELEMENT,
-      0 * Float32Array.BYTES_PER_ELEMENT
-    )
-    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_texCoord)
-    this.gl.vertexAttribPointer(
-      this.programs.image.attributes.a_texCoord,
-      2,
-      this.gl.FLOAT,
-      false,
-      4 * Float32Array.BYTES_PER_ELEMENT,
-      2 * Float32Array.BYTES_PER_ELEMENT
-    )
-    const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.image.buffers.ebo)
-    //QUESTION: Can this be cached?
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
-    this.gl.drawElements(
-      this.gl.TRIANGLES,
-      elements.length,
-      this.gl.UNSIGNED_SHORT,
-      0
-    )
+    this.drawImage()
   }
   private triangles (
     vertices: Vector2[],

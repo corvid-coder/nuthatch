@@ -4,12 +4,13 @@ import Keyboard from "/keyboard.js"
 import Matrix from "/matrix.js"
 
 import Boat from "./boat.js"
-import { DEBUG } from "./constants.js"
+import Map from "./map.js"
+import { DEBUG, SCREEN } from "./constants.js"
 
 export const keyboard = new Keyboard()
-export const graphics = new Graphics(document.body, {x: 800, y: 600})
+export const graphics = new Graphics(document.body, SCREEN)
 
-export const orthoMatrix = Matrix.orthographic(graphics.gl.canvas.width, graphics.gl.canvas.height)
+export const orthoMatrix = Matrix.orthographic(SCREEN.x, SCREEN.y)
 export const cannonballs = new Set()
 export const boats = new Set()
 
@@ -24,6 +25,7 @@ graphics.setup("/")
   .then(() => {
     const runtime = new Runtime()
     let test_cb
+    const map = new Map()
     boats.add(new Boat(1))
     boats.add(new Boat(2))
     runtime.update = (dt) => {
@@ -34,9 +36,9 @@ graphics.setup("/")
         cb.update(dt)
       })
       boats.forEach(b=> {
-        b.position.x = Math.min(b.position.x, 800)
+        b.position.x = Math.min(b.position.x, SCREEN.x)
         b.position.x = Math.max(b.position.x, 0)
-        b.position.y = Math.min(b.position.y, 600)
+        b.position.y = Math.min(b.position.y, SCREEN.y)
         b.position.y = Math.max(b.position.y, 0)
         const bs = b.toShape()
         cannonballs.forEach(cb=> {
@@ -44,7 +46,7 @@ graphics.setup("/")
           if (cb.originator !== b) {
             if(SAT.testPolygonCircle(bs, cbs)) {
               //TODO: Kill cannonball
-              b.REMOVE_ME = true
+              b.damage()
               //TODO: Damage ship
               cb.REMOVE_ME = true
             }
@@ -65,6 +67,7 @@ graphics.setup("/")
     runtime.draw = () => {
       graphics.setTransformMatrix(orthoMatrix)
       graphics.clear({r: 0, g: 0, b: 0, a: 1})
+      map.draw()
       boats.forEach(b=>b.draw())
       cannonballs.forEach(cb=>cb.draw())
       if (DEBUG) {
