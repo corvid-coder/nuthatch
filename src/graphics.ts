@@ -2,7 +2,6 @@ import { Vector2, Color } from "./vector.js"
 import { getFile } from "./utilities.js"
 import Matrix, { mat4x4 } from "./matrix.js"
 import {
-  Program,
   getContext,
   initShaderProgram,
   getAttributeLocation,
@@ -14,16 +13,15 @@ import {
 class Graphics
 {
   private gl : WebGL2RenderingContext
-  private programs: { [index: string]: Program } = {}
-  private program: Program
-  private transformMatrix : mat4x4 = Matrix.identity()
-  private color : Color = {r:1, g:1, b:1, a:1}
+  private program: WebGLProgram
+  private buffers: {[index: string]: WebGLBuffer}
+  private attributes: {[index: string]: number}
+  private uniforms: {[index: string]: WebGLUniformLocation}
   private textureCache: WeakMap<HTMLImageElement, WebGLTexture> = new WeakMap()
   private lastTextureUsed: HTMLImageElement
   constructor (
     target: HTMLElement = document.body,
     size: Vector2 = {x: 300, y: 300},
-    
   )
   {
     const canvas = document.createElement(`canvas`) as HTMLCanvasElement
@@ -38,49 +36,31 @@ class Graphics
     if (pathToNuthatch.endsWith("/")) {
       pathToNuthatch = pathToNuthatch.slice(1)
     }
-    let program
-    program = initShaderProgram(
+    this.program = initShaderProgram(
       this.gl,
-      await getFile(`${pathToNuthatch}/assets/shape.v.glsl`),
-      await getFile(`${pathToNuthatch}/assets/shape.f.glsl`),
+      await getFile(`${pathToNuthatch}/assets/shader.v.glsl`),
+      await getFile(`${pathToNuthatch}/assets/shader.f.glsl`),
     )
-    this.programs.triangle = {
-      program: program,
-      buffers: {
-        vbo: createBuffer(this.gl),
-        ebo: createBuffer(this.gl),
-      },
-      attributes: {
-        a_position: getAttributeLocation(this.gl, program, "a_position"),
-      },
-      uniforms: {
-        u_color: getUniformLocation(this.gl, program, "u_color"),
-        u_trans: getUniformLocation(this.gl, program, "u_trans"),
-      },
+    this.gl.useProgram(this.program)
+    this.buffers = {
+      vbo: createBuffer(this.gl),
+      ebo: createBuffer(this.gl),
+      imageEbo: createBuffer(this.gl), 
     }
-    program = initShaderProgram(
-      this.gl,
-      await getFile(`${pathToNuthatch}/assets/image.v.glsl`),
-      await getFile(`${pathToNuthatch}/assets/image.f.glsl`),
-    )
-    this.programs.image = {
-      program: program,
-      buffers: {
-        vbo: createBuffer(this.gl),
-        ebo: createBuffer(this.gl),
-      },
-      attributes: {
-        a_position: getAttributeLocation(this.gl, program, "a_position"),
-        a_texCoord: getAttributeLocation(this.gl, program, "a_texCoord"),
-      },
-      uniforms: {
-        u_color: getUniformLocation(this.gl, program, "u_color"),
-        u_tex: getUniformLocation(this.gl, program, "u_tex"),
-        u_trans: getUniformLocation(this.gl, program, "u_trans"),
-      },
+    const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
+    this.attributes = {
+      a_position: getAttributeLocation(this.gl, this.program, "a_position"),
+      a_texCoord: getAttributeLocation(this.gl, this.program, "a_texCoord"),
     }
-    this.program = this.programs.triangle
-    this.gl.useProgram(this.program.program)
+    this.uniforms = {
+      u_type: getUniformLocation(this.gl, this.program, "u_type"),
+      u_color: getUniformLocation(this.gl, this.program, "u_color"),
+      u_tex: getUniformLocation(this.gl, this.program, "u_tex"),
+      u_transformation: getUniformLocation(this.gl, this.program, "u_transformation"),
+    }
+    this.setTransformMatrix(Matrix.identity())
   }
   clear (
     color: Color
@@ -93,13 +73,13 @@ class Graphics
     color: Color
   )
   {
-    this.color = color
+    this.gl.uniform4f(this.uniforms.u_color, color.r, color.g, color.b, color.a)
   }
   setTransformMatrix(
     m: mat4x4,
   )
   {
-    this.transformMatrix = m
+    this.gl.uniformMatrix4fv(this.uniforms.u_transformation, true, m)
   }
   setTexture(
     image: HTMLImageElement,
@@ -112,45 +92,45 @@ class Graphics
     if (!texture) {
       texture = createTexture(this.gl)
       this.textureCache.set(image, texture)
+      this.gl.uniform1i(this.uniforms.u_tex, 0)
+      this.gl.activeTexture(this.gl.TEXTURE0)
     }
-    this.gl.activeTexture(this.gl.TEXTURE0)
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-    this.gl.uniform1i(this.programs.image.uniforms.u_tex, 0)
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
     this.lastTextureUsed = image
   }
-  private drawImage ()
+  private drawImage (
+    vertices: Float32Array
+  )
   {
-    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_position)
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
+    this.gl.enableVertexAttribArray(this.attributes.a_position)
     this.gl.vertexAttribPointer(
-      this.programs.image.attributes.a_position,
+      this.attributes.a_position,
       2,
       this.gl.FLOAT,
       false,
       4 * Float32Array.BYTES_PER_ELEMENT,
       0 * Float32Array.BYTES_PER_ELEMENT
     )
-    this.gl.enableVertexAttribArray(this.programs.image.attributes.a_texCoord)
+    this.gl.enableVertexAttribArray(this.attributes.a_texCoord)
     this.gl.vertexAttribPointer(
-      this.programs.image.attributes.a_texCoord,
+      this.attributes.a_texCoord,
       2,
       this.gl.FLOAT,
       false,
       4 * Float32Array.BYTES_PER_ELEMENT,
       2 * Float32Array.BYTES_PER_ELEMENT
     )
-    const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.image.buffers.ebo)
-    //QUESTION: Can this be cached?
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
+    this.gl.uniform1i(this.uniforms.u_type, 1)
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
     this.gl.drawElements(
       this.gl.TRIANGLES,
-      elements.length,
+      6,
       this.gl.UNSIGNED_SHORT,
       0
     )
@@ -159,17 +139,7 @@ class Graphics
     image: HTMLImageElement
   )
   {
-    this.program = this.programs.image
-    this.gl.useProgram(this.programs.image.program)
     this.setTexture(image)
-    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
-    this.gl.uniform4f(
-      this.program.uniforms.u_color,
-      this.color.r,
-      this.color.g,
-      this.color.b,
-      this.color.a,
-    )
     const x = image.naturalWidth
     const y = image.naturalHeight
     const vertices = new Float32Array([
@@ -178,9 +148,7 @@ class Graphics
        0, 0,  0, 1,
        x, 0,  1, 1,
     ])
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
-    this.drawImage()
+    this.drawImage(vertices)
   }
   sprite (
     image: HTMLImageElement,
@@ -188,17 +156,7 @@ class Graphics
     size: Vector2,
   )
   {
-    this.program = this.programs.image
-    this.gl.useProgram(this.programs.image.program)
-    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     this.setTexture(image)
-    this.gl.uniform4f(
-      this.program.uniforms.u_color,
-      this.color.r,
-      this.color.g,
-      this.color.b,
-      this.color.a,
-    )
     const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
     const { x, y } = size
     const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
@@ -209,42 +167,88 @@ class Graphics
        0, 0,  tcl.x, tch.y,
        x, 0,  tch.x, tch.y,
     ])
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.image.buffers.vbo)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
-    this.drawImage()
+    this.drawImage(vertices)
+  }
+  spriteBatch (
+    image: HTMLImageElement,
+    position: Vector2,
+    size: Vector2,
+    positions: Vector2[],
+  )
+  {
+    this.setTexture(image)
+    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
+    const { x, y } = size
+    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
+    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
+    const vertices = positions.map(v => {
+        const {x: vx, y: vy} = v
+        return [
+           0+vx, y+vy,  tcl.x+vx, tcl.y+vy,
+           x+vx, y+vy,  tch.x+vx, tcl.y+vy,
+           0+vx, 0+vy,  tcl.x+vx, tch.y+vy,
+           x+vx, 0+vy,  tch.x+vx, tch.y+vy,
+        ]
+      })
+      .reduce((as, a)=>as.concat(a), [])
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, Float32Array.from(vertices), this.gl.STATIC_DRAW)
+    this.gl.enableVertexAttribArray(this.attributes.a_position)
+    this.gl.vertexAttribPointer(
+      this.attributes.a_position,
+      2,
+      this.gl.FLOAT,
+      false,
+      4 * Float32Array.BYTES_PER_ELEMENT,
+      0 * Float32Array.BYTES_PER_ELEMENT
+    )
+    this.gl.enableVertexAttribArray(this.attributes.a_texCoord)
+    this.gl.vertexAttribPointer(
+      this.attributes.a_texCoord,
+      2,
+      this.gl.FLOAT,
+      false,
+      4 * Float32Array.BYTES_PER_ELEMENT,
+      2 * Float32Array.BYTES_PER_ELEMENT
+    )
+    this.gl.uniform1i(this.uniforms.u_type, 1)
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.ebo)
+    const elements = positions.map((_,i) => {
+        const o = i*4
+        return [0+o, 1+o, 2+o, 1+o, 3+o, 2+o]
+      })
+      .reduce((as, a)=>as.concat(a), [])
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, Uint16Array.from(elements), this.gl.STATIC_DRAW)
+    this.gl.drawElements(
+      this.gl.TRIANGLES,
+      elements.length,
+      this.gl.UNSIGNED_SHORT,
+      0
+    )
   }
   private triangles (
     vertices: Vector2[],
     elements: number[],
   )
   {
-    this.program = this.programs.triangle
-    this.gl.useProgram(this.programs.triangle.program)
-    this.gl.uniform4f(
-      this.program.uniforms.u_color,
-      this.color.r,
-      this.color.g,
-      this.color.b,
-      this.color.a,
-    )
-    this.gl.uniformMatrix4fv(this.program.uniforms.u_trans, true, this.transformMatrix)
     const positions = vertices.reduce((vs, v) => {
       vs.push(v.x, v.y)
       return vs
     }, [] as number[])
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.programs.triangle.buffers.vbo)
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW)
     this.gl.vertexAttribPointer(
-      this.programs.triangle.attributes.a_position,
+      this.attributes.a_position,
       2,
       this.gl.FLOAT,
       false,
       0,
       0
     )
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.programs.triangle.buffers.ebo)
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.ebo)
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(elements), this.gl.STATIC_DRAW)
-    this.gl.enableVertexAttribArray(this.programs.triangle.attributes.a_position)
+    this.gl.enableVertexAttribArray(this.attributes.a_position)
+    this.gl.uniform1i(this.uniforms.u_type, 0)
     this.gl.drawElements(
       this.gl.TRIANGLES,
       elements.length,
