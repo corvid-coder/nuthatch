@@ -17,7 +17,9 @@ export default class Map {
           positions.push({x: x * TILE_SIZE, y: y * TILE_SIZE})
         }
       }
-      graphics.spriteBatch(SPRITE, {x: 0, y: 0}, {x: TILE_SIZE, y: TILE_SIZE}, positions)
+      const offsetX = Math.sin(performance.now() / (5 * 1000 / Math.PI / 2)) * 10
+      const offsetY = Math.sin(performance.now() / (3 * 1000 / Math.PI / 2)) * 10
+      graphics.spriteBatch(SPRITE, {x: offsetX, y: offsetY}, {x: TILE_SIZE, y: TILE_SIZE}, positions)
     }
   }
 }

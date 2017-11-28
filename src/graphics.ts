@@ -47,9 +47,9 @@ class Graphics
       ebo: createBuffer(this.gl),
       imageEbo: createBuffer(this.gl), 
     }
-    const elements = new Uint16Array([ 0, 1, 2, 1, 3, 2 ])
+    const elements = [0, 1, 2, 1, 3, 2]
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, elements, this.gl.STATIC_DRAW)
+    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, Uint16Array.from(elements), this.gl.STATIC_DRAW)
     this.attributes = {
       a_position: getAttributeLocation(this.gl, this.program, "a_position"),
       a_texCoord: getAttributeLocation(this.gl, this.program, "a_texCoord"),
@@ -60,6 +60,12 @@ class Graphics
       u_tex: getUniformLocation(this.gl, this.program, "u_tex"),
       u_transformation: getUniformLocation(this.gl, this.program, "u_transformation"),
     }
+    const texture = createTexture(this.gl)
+    this.gl.uniform1i(this.uniforms.u_tex, 0)
+    this.gl.activeTexture(this.gl.TEXTURE0)
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+                  1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, Uint8Array.from([0,0,0,0]))
     this.setTransformMatrix(Matrix.identity())
   }
   clear (
@@ -81,6 +87,15 @@ class Graphics
   {
     this.gl.uniformMatrix4fv(this.uniforms.u_transformation, true, m)
   }
+  /* TODO(danny):
+    We need a buffer that is 16 long and keeps track of images uploaded
+    to the GPU. When it is time to evict another image from the buffer,
+    find the least recently used image and evict that.
+    
+    When it comes time ot drawing and switching textures,
+    make sure it is completely transparent to the library consumer
+    we are doing this.
+  */
   setTexture(
     image: HTMLImageElement,
   )
@@ -94,103 +109,22 @@ class Graphics
       this.textureCache.set(image, texture)
       this.gl.uniform1i(this.uniforms.u_tex, 0)
       this.gl.activeTexture(this.gl.TEXTURE0)
+      this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
+      //QUESTION(danny): Should this be user settable?
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+      this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     }
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
-    this.gl.bindTexture(this.gl.TEXTURE_2D, texture)
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
     this.lastTextureUsed = image
   }
   private drawImage (
-    vertices: Float32Array
+    vertices: number[],
+    elements?: number[],
   )
   {
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW)
-    this.gl.enableVertexAttribArray(this.attributes.a_position)
-    this.gl.vertexAttribPointer(
-      this.attributes.a_position,
-      2,
-      this.gl.FLOAT,
-      false,
-      4 * Float32Array.BYTES_PER_ELEMENT,
-      0 * Float32Array.BYTES_PER_ELEMENT
-    )
-    this.gl.enableVertexAttribArray(this.attributes.a_texCoord)
-    this.gl.vertexAttribPointer(
-      this.attributes.a_texCoord,
-      2,
-      this.gl.FLOAT,
-      false,
-      4 * Float32Array.BYTES_PER_ELEMENT,
-      2 * Float32Array.BYTES_PER_ELEMENT
-    )
-    this.gl.uniform1i(this.uniforms.u_type, 1)
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
-    this.gl.drawElements(
-      this.gl.TRIANGLES,
-      6,
-      this.gl.UNSIGNED_SHORT,
-      0
-    )
-  }
-  image (
-    image: HTMLImageElement
-  )
-  {
-    this.setTexture(image)
-    const x = image.naturalWidth
-    const y = image.naturalHeight
-    const vertices = new Float32Array([
-       0, y,  0, 0,
-       x, y,  1, 0,
-       0, 0,  0, 1,
-       x, 0,  1, 1,
-    ])
-    this.drawImage(vertices)
-  }
-  sprite (
-    image: HTMLImageElement,
-    position: Vector2,
-    size: Vector2,
-  )
-  {
-    this.setTexture(image)
-    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
-    const { x, y } = size
-    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
-    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
-    const vertices = new Float32Array([
-       0, y,  tcl.x, tcl.y,
-       x, y,  tch.x, tcl.y,
-       0, 0,  tcl.x, tch.y,
-       x, 0,  tch.x, tch.y,
-    ])
-    this.drawImage(vertices)
-  }
-  spriteBatch (
-    image: HTMLImageElement,
-    position: Vector2,
-    size: Vector2,
-    positions: Vector2[],
-  )
-  {
-    this.setTexture(image)
-    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
-    const { x, y } = size
-    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
-    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
-    const vertices = positions.map(v => {
-        const {x: vx, y: vy} = v
-        return [
-           0+vx, y+vy,  tcl.x+vx, tcl.y+vy,
-           x+vx, y+vy,  tch.x+vx, tcl.y+vy,
-           0+vx, 0+vy,  tcl.x+vx, tch.y+vy,
-           x+vx, 0+vy,  tch.x+vx, tch.y+vy,
-        ]
-      })
-      .reduce((as, a)=>as.concat(a), [])
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
     this.gl.bufferData(this.gl.ARRAY_BUFFER, Float32Array.from(vertices), this.gl.STATIC_DRAW)
     this.gl.enableVertexAttribArray(this.attributes.a_position)
@@ -212,19 +146,89 @@ class Graphics
       2 * Float32Array.BYTES_PER_ELEMENT
     )
     this.gl.uniform1i(this.uniforms.u_type, 1)
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.ebo)
+    if (typeof elements !== "undefined") {
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.ebo)
+      this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, Uint16Array.from(elements), this.gl.STATIC_DRAW)
+      this.gl.drawElements(
+        this.gl.TRIANGLES,
+        elements.length,
+        this.gl.UNSIGNED_SHORT,
+        0
+      )
+    } else {
+      this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
+      this.gl.drawElements(
+        this.gl.TRIANGLES,
+        6,
+        this.gl.UNSIGNED_SHORT,
+        0
+      )
+    }
+    this.gl.disableVertexAttribArray(this.attributes.a_texCoord)
+    this.gl.disableVertexAttribArray(this.attributes.a_position)
+  }
+  image (
+    image: HTMLImageElement
+  )
+  {
+    this.setTexture(image)
+    const x = image.naturalWidth
+    const y = image.naturalHeight
+    const vertices = [
+       0, y,  0, 0,
+       x, y,  1, 0,
+       0, 0,  0, 1,
+       x, 0,  1, 1,
+    ]
+    this.drawImage(vertices)
+  }
+  sprite (
+    image: HTMLImageElement,
+    position: Vector2,
+    size: Vector2,
+  )
+  {
+    this.setTexture(image)
+    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
+    const { x, y } = size
+    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
+    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
+    const vertices = [
+       0, y,  tcl.x, tcl.y,
+       x, y,  tch.x, tcl.y,
+       0, 0,  tcl.x, tch.y,
+       x, 0,  tch.x, tch.y,
+    ]
+    this.drawImage(vertices)
+  }
+  spriteBatch (
+    image: HTMLImageElement,
+    position: Vector2,
+    size: Vector2,
+    positions: Vector2[],
+  )
+  {
+    this.setTexture(image)
+    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
+    const { x, y } = size
+    const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
+    const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}
+    const vertices = positions.map(v => {
+        const {x: vx, y: vy} = v
+        return [
+           0+vx, y+vy,  tcl.x, tcl.y,
+           x+vx, y+vy,  tch.x, tcl.y,
+           0+vx, 0+vy,  tcl.x, tch.y,
+           x+vx, 0+vy,  tch.x, tch.y,
+        ]
+      })
+      .reduce((as, a)=>as.concat(a), [])
     const elements = positions.map((_,i) => {
         const o = i*4
         return [0+o, 1+o, 2+o, 1+o, 3+o, 2+o]
       })
       .reduce((as, a)=>as.concat(a), [])
-    this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, Uint16Array.from(elements), this.gl.STATIC_DRAW)
-    this.gl.drawElements(
-      this.gl.TRIANGLES,
-      elements.length,
-      this.gl.UNSIGNED_SHORT,
-      0
-    )
+    this.drawImage(vertices, elements)
   }
   private triangles (
     vertices: Vector2[],
@@ -255,6 +259,7 @@ class Graphics
       this.gl.UNSIGNED_SHORT,
       0
     )
+    this.gl.disableVertexAttribArray(this.attributes.a_position)
   }
   // Remove x/y
   circle (
