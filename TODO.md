@@ -1,85 +1,63 @@
 # TODO
 
 -   README.md
+-   Dev Ops
+    -   [ ] Linter
+    -   [ ] SemVer Release
+-   Demos
+    -   [ ] Translation Lerp
+    -   [ ] NES Ice Hockey
+    -   [ ] Joust
+    -   [ ] Frogger
 -   webgl2
     -   [ ] documentation
-    -   [x] context
-    -   [x] compile shader
-    -   [x] compile program
-    -   [x] create buffer
-    -   [x] get vertex attribute
-    -   [x] get uniform location
 -   Graphics
     -   [ ] documentation
-    -   [x] triangle
-    -   [x] rectangle
-    -   [x] polygon
-    -   [x] circle
-    -   [x] load shader source
     -   [ ] point
     -   [ ] line
     -   [ ] text
         -   [ ] bitmap
         -   [ ] vector (otf)
         -   [ ] bitfield
-    -   [x] image
-    -   [x] sprite
-    -   [x] setTransformMatrix
 -   Keyboard
     -   [ ] documentation
-    -   [x] key state
 -   Gamepad
     -   [ ] documentation
-    -   [x] getGamepads
 -   Mouse
     -   [ ] documentation
 -   Audio
     -   [ ] documentation
+    -   [ ] play
 -   Vector
     -   [ ] documentation
     -   [ ] clone
-    -   [ ] normalize
-    -   [ ] rotate
-    -   [ ] add
     -   [ ] dotProduct
-    -   [ ] multiply
     -   [ ] getters (x, y, r, g, b, a)
     -   [ ] setters
 -   Matrix
     -   [ ] documentation
-    -   [x] identity
-    -   [x] orthographic
     -   [ ] projection
-    -   [x] multiplyPoint
-    -   [x] multiply
-    -   [x] scale
-    -   [x] translate
-    -   [x] rotate
 -   MatrixState
     -   [ ] documentation
-    -   [ ] push
+    -   [ ] push (auto multiply)
     -   [ ] pop
     -   [ ] top
--   GameState
+-   StateManager
     -   [ ] documentation
-    -   [ ] push
-    -   [ ] pop
-    -   [ ] callbacks
--   Event Bus
+-   EventBus
     -   [ ] documentation
     -   [ ] on
     -   [ ] off
     -   [ ] trigger
--   Collision Detection
+-   CollisionDetection
     -   [ ] documentation
+    -   [ ] AABB
+    -   [ ] SAT
 -   Runtime
     -   [ ] documentation
-    -   [x] fixed
+    -   [ ] VBR Fixed (maybe a demo)
 -   Debug
     -   [ ] documentation
-    -   [x] logger
-    -   [x] assert
-    -   [x] profiler
 -   Sensors (for phones usually)
     -   [ ] documentation
     -   [ ] Ambient Light
@@ -89,17 +67,3 @@
     -   [ ] Orientation
     -   [ ] Location
     -   [ ] Battery
--   Demos
-    -   [x] Spritesheet Animation
-    -   [ ] Translation Lerp
-    -   [ ] Pong
-        -   [x] Basic Game
-    -   [ ] Flappy Bird
-        -   [x] Basic Game
-        -   [x] Images
-        -   [ ] Animations
-        -   [ ] Score
-    -   [ ] NES Ice Hockey
-    -   [ ] Shipwreckers
-    -   [ ] Joust
-    -   [ ] Frogger
