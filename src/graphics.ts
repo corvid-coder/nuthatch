@@ -10,6 +10,43 @@ import {
   createTexture,
 } from "./webgl2.js"
 
+export interface FontFace {
+  family: string,
+  size: string,
+  weight: number,
+  style: string,
+}
+
+export const ENGLISH = [
+  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+  "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+  "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+  ")", "!", "@", "#", "$", "%", "^", "&", "*", "(",
+  "-", "=", "[", "]", ";", "'", ",", ".", "/", "`", "\\",
+  "_", "+", "{", "}", ":", "\"", "<", ">", "?", "~", "|",
+]
+
+export interface Glyph {
+  /*INFO(danny):
+    character: the letter represented ex "a" "j" " "
+    origin: the beginning of the letter's baseline
+    position: location of sprite in spritesheet
+    size: the bounding box of the sprite
+    spacing - distance from origin to the next letter
+  */
+  character: string,
+  origin: Vector2,
+  position: Vector2,
+  size: Vector2,
+  spacing: number,
+}
+
+export interface Font {
+  
+}
+
 class Graphics
 {
   private gl : WebGL2RenderingContext
@@ -67,6 +104,179 @@ class Graphics
     this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
                   1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, Uint8Array.from([0,0,0,0]))
     this.setTransformMatrix(Matrix.identity())
+  }
+  createFont (
+    font: FontFace,
+    characters: string[],
+  ) : Font
+  {
+    const el = document.createElement(`div`)
+    el.style.fontSize = font.size
+    document.body.appendChild(el)
+    const sizeInPx = parseInt(getComputedStyle(el).fontSize!)
+    document.body.removeChild(el)
+    const glyphs = characters.map(c => this.createGlyph(font, c, sizeInPx))
+    // const canvas = document.createElement(`canvas`)
+    // document.body.appendChild(canvas)
+    // canvas.width = glyph.size.x
+    // canvas.height = glyph.size.y
+    // const context = canvas.getContext(`2d`)!
+    //TODO(danny): This needs to be an atlas
+    // context.putImageData(imageData, 0, 0)
+  }
+  private createGlyph (
+    font: FontFace,
+    character: string,
+    sizeInPx: number,
+  ) : [Glyph, ImageData]
+  {
+    const width = sizeInPx * 2
+    const height = width
+    const canvas = document.createElement(`canvas`)
+    canvas.width = width
+    canvas.height = height
+    const origin : Vector2 = {
+      x: width / 3,
+      y: height * 2 / 3,
+    }
+    const context = canvas.getContext(`2d`)!
+    //TODO(danny): font-style font-variant font-weight
+    context.font = `${font.size} ${font.family}`
+    if (character === ` `) {
+      const el = document.createElement(`div`)
+      el.style.fontSize = "calc(1 / 3em)" 
+      document.body.appendChild(el)
+      const spacing = parseInt(getComputedStyle(el).fontSize!)
+      document.body.removeChild(el)
+      return [
+        {
+          character,
+          origin: {x: 0, y: 0},
+          size: {x: spacing, y: 1},
+          position: {x: 0, y: 0},
+          spacing,
+        },
+        context.createImageData(spacing, 1),
+      ]
+    }
+    context.fillText(character, origin.x, origin.y)
+    const spacing = context.measureText(character).width
+    const imageData = context.getImageData(0, 0, width, height)
+    const l = this.getLeftBound(imageData)
+    const r = this.getRightBound(imageData)
+    const t = this.getTopBound(imageData)
+    const b = this.getBottomBound(imageData)
+    const glyphImageData = context.getImageData(l, t, r-l, b-t)
+    if (false) {
+      // @ts-ignore: Unreachable code error
+      document.body.appendChild(canvas)
+      context.strokeStyle = "hsla(0, 100%, 50%, 0.5)"
+      context.setLineDash([5, 5]);
+      context.beginPath()
+      context.moveTo(origin.x, 0)
+      context.lineTo(origin.x, height)
+      context.stroke()
+      context.beginPath()
+      context.moveTo(0, origin.y)
+      context.lineTo(width, origin.y)
+      context.stroke()
+      context.beginPath()
+      context.strokeStyle = "hsla(140, 100%, 50%, 0.5)"
+      context.moveTo(origin.x + spacing, 0)
+      context.lineTo(origin.x + spacing, height)
+      context.stroke()
+      context.strokeStyle = "hsla(240, 100%, 50%, 0.5)"
+      context.setLineDash([5, 0]);
+      context.beginPath()
+      context.moveTo(l, t)
+      context.lineTo(r, t)
+      context.lineTo(r, b)
+      context.lineTo(l, b)
+      context.lineTo(l, t)
+      context.stroke()
+    }
+    return [
+      {
+        character,
+        origin: {x: origin.x - l, y: origin.y - t},
+        size: {x: r - l, y: b - t},
+        position: {x: 0, y: 0},
+        spacing,
+      },
+      glyphImageData,
+    ]
+  }
+  getLeftBound(
+    imageData: ImageData
+  ) : number
+  {
+    const width = imageData.width
+    const height = imageData.height
+    for (var x = 0; x < width; x++) {
+      for (var y = 0; y < height; y++) {
+        const a = imageData.data[(x + y * width) * 4 + 3]
+        if (a > 0) {
+          return x - 2
+        }
+      }
+    }
+    return -1
+  }
+  getRightBound(
+    imageData: ImageData
+  ) : number
+  {
+    const width = imageData.width
+    const height = imageData.height
+    for (var x = width-1; x >= 0; x--) {
+      for (var y = 0; y < height; y++) {
+        const a = imageData.data[(x + y * width) * 4 + 3]
+        if (a > 0) {
+          return x + 2
+        }
+      }
+    }
+    return -1
+  }
+  getTopBound(
+    imageData: ImageData
+  ) : number
+  {
+    const width = imageData.width
+    const height = imageData.height
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        const a = imageData.data[(x + y * width) * 4 + 3]
+        if (a > 0) {
+          return y - 2
+        }
+      }
+    }
+    return -1
+  }
+  getBottomBound(
+    imageData: ImageData
+  ) : number
+  {
+    const width = imageData.width
+    const height = imageData.height
+    for (var y = height - 1; y >= 0; y--) {
+      for (var x = 0; x < width; x++) {
+        const a = imageData.data[(x + y * width) * 4 + 3]
+        if (a > 0) {
+          return y + 2
+        }
+      }
+    }
+    return -1
+  }
+  
+  text (
+    font: Font,
+    message: string,
+  ) : void
+  {
+    
   }
   clear (
     color: Color
