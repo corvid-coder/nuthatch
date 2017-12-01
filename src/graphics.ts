@@ -13,11 +13,14 @@ import {
 export interface FontFace {
   family: string,
   size: string,
-  weight: number,
-  style: string,
+  weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900,
+  style: "normal" | "oblique" | "italic",
+  variant: string,
+  color: string,
 }
 
 export const ENGLISH = [
+  " ",
   "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
   "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
   "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
@@ -44,7 +47,10 @@ export interface Glyph {
 }
 
 export interface Font {
-  
+  imageData: ImageData,
+  glyphs: {
+    [key: string]: Glyph,
+  }
 }
 
 class Graphics
@@ -54,8 +60,8 @@ class Graphics
   private buffers: {[index: string]: WebGLBuffer}
   private attributes: {[index: string]: number}
   private uniforms: {[index: string]: WebGLUniformLocation}
-  private textureCache: WeakMap<HTMLImageElement, WebGLTexture> = new WeakMap()
-  private lastTextureUsed: HTMLImageElement
+  private textureCache: WeakMap<HTMLImageElement | ImageData, WebGLTexture> = new WeakMap()
+  private lastTextureUsed: HTMLImageElement | ImageData
   constructor (
     target: HTMLElement = document.body,
     size: Vector2 = {x: 300, y: 300},
@@ -69,7 +75,8 @@ class Graphics
   }
   async setup (
     pathToNuthatch: string = "/node_modules/@nuthatch",
-  ) {
+  )
+  {
     if (pathToNuthatch.endsWith("/")) {
       pathToNuthatch = pathToNuthatch.slice(1)
     }
@@ -116,13 +123,27 @@ class Graphics
     const sizeInPx = parseInt(getComputedStyle(el).fontSize!)
     document.body.removeChild(el)
     const glyphs = characters.map(c => this.createGlyph(font, c, sizeInPx))
-    // const canvas = document.createElement(`canvas`)
-    // document.body.appendChild(canvas)
-    // canvas.width = glyph.size.x
-    // canvas.height = glyph.size.y
-    // const context = canvas.getContext(`2d`)!
-    //TODO(danny): This needs to be an atlas
-    // context.putImageData(imageData, 0, 0)
+    const canvas = document.createElement(`canvas`)
+    if (false) {
+      // @ts-ignore: Unreachable code error
+      document.body.appendChild(canvas)
+    }
+    canvas.height = glyphs.reduce((h,[g, _]) => g.size.y > h ? g.size.y : h, 0)
+    canvas.width = glyphs.reduce((w,[g, _]) => g.size.x + w, 0)
+    const context = canvas.getContext(`2d`)!
+    let offsetX = 0
+    glyphs.forEach(([g, imageData]) => {
+      context.putImageData(imageData, offsetX, 0)
+      g.position.x = offsetX
+      offsetX += g.size.x
+    })
+    return {
+      imageData: context.getImageData(0, 0, canvas.width, canvas.height),
+      glyphs: glyphs.reduce((gs: {[key: string]: Glyph}, [g,_]) => {
+        gs[g.character] = g
+        return gs
+      }, {})
+    }
   }
   private createGlyph (
     font: FontFace,
@@ -130,8 +151,8 @@ class Graphics
     sizeInPx: number,
   ) : [Glyph, ImageData]
   {
-    const width = sizeInPx * 2
-    const height = width
+    const width = sizeInPx * 1.3
+    const height = sizeInPx * 1
     const canvas = document.createElement(`canvas`)
     canvas.width = width
     canvas.height = height
@@ -140,14 +161,11 @@ class Graphics
       y: height * 2 / 3,
     }
     const context = canvas.getContext(`2d`)!
-    //TODO(danny): font-style font-variant font-weight
-    context.font = `${font.size} ${font.family}`
+    context.font = `${font.style || "normal"} ${font.variant || "normal"} ${font.weight || 400} ${font.size} "${font.family}"`
+    console.log(context.font)
+    context.fillStyle = font.color
     if (character === ` `) {
-      const el = document.createElement(`div`)
-      el.style.fontSize = "calc(1 / 3em)" 
-      document.body.appendChild(el)
-      const spacing = parseInt(getComputedStyle(el).fontSize!)
-      document.body.removeChild(el)
+      const spacing = Math.ceil(sizeInPx / 3)
       return [
         {
           character,
@@ -270,13 +288,37 @@ class Graphics
     }
     return -1
   }
-  
   text (
     font: Font,
     message: string,
+    position: Vector2,
   ) : void
   {
-    
+    const image = font.imageData
+    const offset = {...position}
+    const ss: Vector2 = {x: image.width, y: image.height}
+    const vertices: number[][] = message.split("").reduce((vs: number[][], l) => {
+        const g = font.glyphs[l]
+        const { x, y } = g.size
+        const tcl: Vector2 = {x: g.position.x / ss.x, y: g.position.y / ss.y}
+        const tch: Vector2 = {x: tcl.x + (g.size.x / ss.x), y: tcl.y + (g.size.y / ss.y)}
+        const {x: vx, y: vy} = offset
+        offset.x = offset.x + g.spacing
+        vs.push([
+           0+vx, y+vy,  tcl.x, tcl.y,
+           x+vx, y+vy,  tch.x, tcl.y,
+           0+vx, 0+vy,  tcl.x, tch.y,
+           x+vx, 0+vy,  tch.x, tch.y,
+        ])
+        return vs
+      }, [])
+    this.setTexture(font.imageData)
+    const elements = vertices.map((_,i) => {
+        const o = i*4
+        return [0+o, 1+o, 2+o, 1+o, 3+o, 2+o]
+      })
+      .reduce((as, a)=>as.concat(a), [])
+    this.drawImage(vertices.reduce((as, a)=>as.concat(a), []), elements)
   }
   clear (
     color: Color
@@ -297,7 +339,7 @@ class Graphics
   {
     this.gl.uniformMatrix4fv(this.uniforms.u_transformation, true, m)
   }
-  /* TODO(danny):
+  /* TODO(danny): Utilize Texture Slots
     We need a buffer that is 16 long and keeps track of images uploaded
     to the GPU. When it is time to evict another image from the buffer,
     find the least recently used image and evict that.
@@ -307,7 +349,7 @@ class Graphics
     we are doing this.
   */
   setTexture(
-    image: HTMLImageElement,
+    image: HTMLImageElement | ImageData,
   )
   {
     if (this.lastTextureUsed === image) {
@@ -326,8 +368,11 @@ class Graphics
       this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
       this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     }
-    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA,
-                  this.gl.RGBA, this.gl.UNSIGNED_BYTE, image)
+    this.gl.texImage2D(
+      this.gl.TEXTURE_2D, 0,
+      this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
+      image,
+    )
     this.lastTextureUsed = image
   }
   private drawImage (
@@ -393,13 +438,18 @@ class Graphics
     this.drawImage(vertices)
   }
   sprite (
-    image: HTMLImageElement,
+    image: HTMLImageElement | ImageData,
     position: Vector2,
     size: Vector2,
   )
   {
     this.setTexture(image)
-    const ss: Vector2 = {x: image.naturalWidth, y: image.naturalHeight}
+    let ss: Vector2
+    if (image instanceof HTMLImageElement) {
+      ss = {x: image.naturalWidth, y: image.naturalHeight}
+    } else {
+      ss = {x: image.width, y: image.height}
+    }
     const { x, y } = size
     const tcl: Vector2 = {x: position.x / ss.x, y: position.y / ss.y}
     const tch: Vector2 = {x: tcl.x + (size.x / ss.x), y: tcl.y + (size.y / ss.y)}

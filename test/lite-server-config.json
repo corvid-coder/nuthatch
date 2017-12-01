@@ -8,6 +8,7 @@
   "server": {
     "baseDir": "./"
   },
+  "open": false,
   "startPath": "/test/index.html",
   "reloadOnRestart": true
 }

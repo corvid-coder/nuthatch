@@ -28,7 +28,7 @@ graphics.setup("/")
     }
     runtime.draw = () => {
       graphics.clear({r: 0, g: 0, b: 0, a: 1})
-      graphics.setTransformMatrix(Matrix.orthographic(300, 300))
+      graphics.setTransformMatrix(Matrix.orthographic({x: 300, y: 300}))
       if (SPRITESHEET.complete) {
         const frame = Math.floor((runtime.timeElapsed() / 100) % frames.length)
         graphics.sprite(SPRITESHEET,

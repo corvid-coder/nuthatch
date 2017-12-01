@@ -8,7 +8,7 @@ import Wall, { WIDTH as WALL_WIDTH } from "./wall.js"
 export const keyboard = new Keyboard()
 export const graphics = new Graphics(document.body)
 
-export const orthoMatrix = Matrix.orthographic(300, 300)
+export const orthoMatrix = Matrix.orthographic({x: 300, y: 300})
 
 graphics.setup("/")
   .then(() => {

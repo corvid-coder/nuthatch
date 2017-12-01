@@ -34,10 +34,10 @@ export default class Matrix {
       0, 0, 0, 1,
     ]
   }
-  static orthographic (width: number, height: number) : mat4x4 {
+  static orthographic (size: Vector2) : mat4x4 {
     const left = 0
-    const right = width
-    const top = height
+    const right = size.x
+    const top = size.y
     const bottom = 0
     const near = 100
     const far = -100

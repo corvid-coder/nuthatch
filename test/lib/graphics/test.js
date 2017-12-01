@@ -48,14 +48,14 @@ graphics.setup("/")
     )
     
     image.onload = () => {
-      graphics.setTransformMatrix(Matrix.orthographic(300, 300))
+      graphics.setTransformMatrix(Matrix.orthographic({x: 300, y: 300}))
       graphics.image(image)
     }
     image.src = "./parrot.png"
     
     
     spritesheet.onload = () => {
-      graphics.setTransformMatrix(Matrix.orthographic(300, 300))
+      graphics.setTransformMatrix(Matrix.orthographic({x: 300, y: 300}))
       graphics.setColor({r: 0.0, g: 0.0, b: 0.0, a: 1.0})
       graphics.sprite(spritesheet, {x: 533, y: 332}, {x: 116, y: 111})
     }

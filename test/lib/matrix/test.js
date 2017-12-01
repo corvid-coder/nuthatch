@@ -47,7 +47,7 @@ const v2 = {x: 1, y: 2}
   console.log(result)
 }
 {
-  const M = Matrix.orthographic(300, 300)
+  const M = Matrix.orthographic({x: 300, y: 300})
   Matrix.print(M)
   const p = {x: 150, y:300}
   const result = Matrix.multiplyPoint(M, p)

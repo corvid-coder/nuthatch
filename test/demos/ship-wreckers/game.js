@@ -10,7 +10,7 @@ import { DEBUG, SCREEN } from "./constants.js"
 export const keyboard = new Keyboard()
 export const graphics = new Graphics(document.body, SCREEN)
 
-export const orthoMatrix = Matrix.orthographic(SCREEN.x, SCREEN.y)
+export const orthoMatrix = Matrix.orthographic(SCREEN)
 export const cannonballs = new Set()
 export const boats = new Set()
 
@@ -45,9 +45,7 @@ graphics.setup("/")
           const cbs = cb.toShape()
           if (cb.originator !== b) {
             if(SAT.testPolygonCircle(bs, cbs)) {
-              //TODO: Kill cannonball
               b.damage()
-              //TODO: Damage ship
               cb.REMOVE_ME = true
             }
           }

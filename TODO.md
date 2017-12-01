@@ -1,4 +1,4 @@
-# TODO
+# TODO: list
 
 -   README.md
 -   Dev Ops
@@ -15,10 +15,6 @@
     -   [ ] documentation
     -   [ ] point
     -   [ ] line
-    -   [ ] text
-        -   [ ] bitmap
-        -   [ ] vector (otf)
-        -   [ ] bitfield
 -   Keyboard
     -   [ ] documentation
 -   Gamepad

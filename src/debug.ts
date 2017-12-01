@@ -1,3 +1,7 @@
+export let DEBUG = false
+
+export const enableDebug = () => DEBUG = true
+
 class AssertError extends Error {}
 
 export function assert (booleanExpression: Boolean, message: string)
