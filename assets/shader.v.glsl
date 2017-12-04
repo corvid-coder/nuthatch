@@ -10,5 +10,6 @@ out vec2 o_TexCoord;
 
 void main () {
   gl_Position = u_transformation * vec4(a_position.x, a_position.y, a_position.z, 1.0);
+  gl_PointSize = 1.0;
   o_TexCoord = a_texCoord;
 }

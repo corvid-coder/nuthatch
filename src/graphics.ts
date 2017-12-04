@@ -1,6 +1,7 @@
 import { Vector2, Color } from "./vector.js"
 import { getFile } from "./utilities.js"
 import Matrix, { mat4x4 } from "./matrix.js"
+import { Font } from "./font.js"
 import {
   getContext,
   initShaderProgram,
@@ -10,48 +11,6 @@ import {
   createTexture,
 } from "./webgl2.js"
 
-export interface FontFace {
-  family: string,
-  size: string,
-  weight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900,
-  style: "normal" | "oblique" | "italic",
-  variant: string,
-  color: string,
-}
-
-export const ENGLISH = [
-  " ",
-  "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-  "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
-  "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-  "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-  ")", "!", "@", "#", "$", "%", "^", "&", "*", "(",
-  "-", "=", "[", "]", ";", "'", ",", ".", "/", "`", "\\",
-  "_", "+", "{", "}", ":", "\"", "<", ">", "?", "~", "|",
-]
-
-export interface Glyph {
-  /*INFO(danny):
-    character: the letter represented ex "a" "j" " "
-    origin: the beginning of the letter's baseline
-    position: location of sprite in spritesheet
-    size: the bounding box of the sprite
-    spacing - distance from origin to the next letter
-  */
-  character: string,
-  origin: Vector2,
-  position: Vector2,
-  size: Vector2,
-  spacing: number,
-}
-
-export interface Font {
-  imageData: ImageData,
-  glyphs: {
-    [key: string]: Glyph,
-  }
-}
 
 class Graphics
 {
@@ -112,182 +71,6 @@ class Graphics
                   1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, Uint8Array.from([0,0,0,0]))
     this.setTransformMatrix(Matrix.identity())
   }
-  createFont (
-    font: FontFace,
-    characters: string[],
-  ) : Font
-  {
-    const el = document.createElement(`div`)
-    el.style.fontSize = font.size
-    document.body.appendChild(el)
-    const sizeInPx = parseInt(getComputedStyle(el).fontSize!)
-    document.body.removeChild(el)
-    const glyphs = characters.map(c => this.createGlyph(font, c, sizeInPx))
-    const canvas = document.createElement(`canvas`)
-    if (false) {
-      // @ts-ignore: Unreachable code error
-      document.body.appendChild(canvas)
-    }
-    canvas.height = glyphs.reduce((h,[g, _]) => g.size.y > h ? g.size.y : h, 0)
-    canvas.width = glyphs.reduce((w,[g, _]) => g.size.x + w, 0)
-    const context = canvas.getContext(`2d`)!
-    let offsetX = 0
-    glyphs.forEach(([g, imageData]) => {
-      context.putImageData(imageData, offsetX, 0)
-      g.position.x = offsetX
-      offsetX += g.size.x
-    })
-    return {
-      imageData: context.getImageData(0, 0, canvas.width, canvas.height),
-      glyphs: glyphs.reduce((gs: {[key: string]: Glyph}, [g,_]) => {
-        gs[g.character] = g
-        return gs
-      }, {})
-    }
-  }
-  private createGlyph (
-    font: FontFace,
-    character: string,
-    sizeInPx: number,
-  ) : [Glyph, ImageData]
-  {
-    const width = sizeInPx * 1.3
-    const height = sizeInPx * 1
-    const canvas = document.createElement(`canvas`)
-    canvas.width = width
-    canvas.height = height
-    const origin : Vector2 = {
-      x: width / 3,
-      y: height * 2 / 3,
-    }
-    const context = canvas.getContext(`2d`)!
-    context.font = `${font.style || "normal"} ${font.variant || "normal"} ${font.weight || 400} ${font.size} "${font.family}"`
-    console.log(context.font)
-    context.fillStyle = font.color
-    if (character === ` `) {
-      const spacing = Math.ceil(sizeInPx / 3)
-      return [
-        {
-          character,
-          origin: {x: 0, y: 0},
-          size: {x: spacing, y: 1},
-          position: {x: 0, y: 0},
-          spacing,
-        },
-        context.createImageData(spacing, 1),
-      ]
-    }
-    context.fillText(character, origin.x, origin.y)
-    const spacing = context.measureText(character).width
-    const imageData = context.getImageData(0, 0, width, height)
-    const l = this.getLeftBound(imageData)
-    const r = this.getRightBound(imageData)
-    const t = this.getTopBound(imageData)
-    const b = this.getBottomBound(imageData)
-    const glyphImageData = context.getImageData(l, t, r-l, b-t)
-    if (false) {
-      // @ts-ignore: Unreachable code error
-      document.body.appendChild(canvas)
-      context.strokeStyle = "hsla(0, 100%, 50%, 0.5)"
-      context.setLineDash([5, 5]);
-      context.beginPath()
-      context.moveTo(origin.x, 0)
-      context.lineTo(origin.x, height)
-      context.stroke()
-      context.beginPath()
-      context.moveTo(0, origin.y)
-      context.lineTo(width, origin.y)
-      context.stroke()
-      context.beginPath()
-      context.strokeStyle = "hsla(140, 100%, 50%, 0.5)"
-      context.moveTo(origin.x + spacing, 0)
-      context.lineTo(origin.x + spacing, height)
-      context.stroke()
-      context.strokeStyle = "hsla(240, 100%, 50%, 0.5)"
-      context.setLineDash([5, 0]);
-      context.beginPath()
-      context.moveTo(l, t)
-      context.lineTo(r, t)
-      context.lineTo(r, b)
-      context.lineTo(l, b)
-      context.lineTo(l, t)
-      context.stroke()
-    }
-    return [
-      {
-        character,
-        origin: {x: origin.x - l, y: origin.y - t},
-        size: {x: r - l, y: b - t},
-        position: {x: 0, y: 0},
-        spacing,
-      },
-      glyphImageData,
-    ]
-  }
-  getLeftBound(
-    imageData: ImageData
-  ) : number
-  {
-    const width = imageData.width
-    const height = imageData.height
-    for (var x = 0; x < width; x++) {
-      for (var y = 0; y < height; y++) {
-        const a = imageData.data[(x + y * width) * 4 + 3]
-        if (a > 0) {
-          return x - 2
-        }
-      }
-    }
-    return -1
-  }
-  getRightBound(
-    imageData: ImageData
-  ) : number
-  {
-    const width = imageData.width
-    const height = imageData.height
-    for (var x = width-1; x >= 0; x--) {
-      for (var y = 0; y < height; y++) {
-        const a = imageData.data[(x + y * width) * 4 + 3]
-        if (a > 0) {
-          return x + 2
-        }
-      }
-    }
-    return -1
-  }
-  getTopBound(
-    imageData: ImageData
-  ) : number
-  {
-    const width = imageData.width
-    const height = imageData.height
-    for (var y = 0; y < height; y++) {
-      for (var x = 0; x < width; x++) {
-        const a = imageData.data[(x + y * width) * 4 + 3]
-        if (a > 0) {
-          return y - 2
-        }
-      }
-    }
-    return -1
-  }
-  getBottomBound(
-    imageData: ImageData
-  ) : number
-  {
-    const width = imageData.width
-    const height = imageData.height
-    for (var y = height - 1; y >= 0; y--) {
-      for (var x = 0; x < width; x++) {
-        const a = imageData.data[(x + y * width) * 4 + 3]
-        if (a > 0) {
-          return y + 2
-        }
-      }
-    }
-    return -1
-  }
   text (
     font: Font,
     message: string,
@@ -302,13 +85,14 @@ class Graphics
         const { x, y } = g.size
         const tcl: Vector2 = {x: g.position.x / ss.x, y: g.position.y / ss.y}
         const tch: Vector2 = {x: tcl.x + (g.size.x / ss.x), y: tcl.y + (g.size.y / ss.y)}
+        const {x: ox, y: oy} = g.origin
         const {x: vx, y: vy} = offset
         offset.x = offset.x + g.spacing
         vs.push([
-           0+vx, y+vy,  tcl.x, tcl.y,
-           x+vx, y+vy,  tch.x, tcl.y,
-           0+vx, 0+vy,  tcl.x, tch.y,
-           x+vx, 0+vy,  tch.x, tch.y,
+           0+vx+ox, y+vy+oy,  tcl.x, tcl.y,
+           x+vx+ox, y+vy+oy,  tch.x, tcl.y,
+           0+vx+ox, 0+vy+oy,  tcl.x, tch.y,
+           x+vx+ox, 0+vy+oy,  tch.x, tch.y,
         ])
         return vs
       }, [])
@@ -584,6 +368,48 @@ class Graphics
       [v1, v2, v3],
       [0, 1, 2],
     )
+  }
+  point (
+    position: Vector2,
+  )
+  {
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array([position.x, position.y]), this.gl.STATIC_DRAW)
+    this.gl.vertexAttribPointer(
+      this.attributes.a_position,
+      2,
+      this.gl.FLOAT,
+      false,
+      0,
+      0
+    )
+    this.gl.enableVertexAttribArray(this.attributes.a_position)
+    this.gl.uniform1i(this.uniforms.u_type, 0)
+    this.gl.drawArrays(this.gl.POINTS, 0, 1)
+    this.gl.disableVertexAttribArray(this.attributes.a_position)
+  }
+  line (
+    vertices: Vector2[]
+  )
+  {
+    const positions = vertices.reduce((vs, v) => {
+      vs.push(v.x, v.y)
+      return vs
+    }, [] as number[])
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffers.vbo)
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW)
+    this.gl.vertexAttribPointer(
+      this.attributes.a_position,
+      2,
+      this.gl.FLOAT,
+      false,
+      0,
+      0
+    )
+    this.gl.enableVertexAttribArray(this.attributes.a_position)
+    this.gl.uniform1i(this.uniforms.u_type, 0)
+    this.gl.drawArrays(this.gl.LINE_STRIP, 0, vertices.length)
+    this.gl.disableVertexAttribArray(this.attributes.a_position)
   }
 }
 

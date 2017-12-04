@@ -6,6 +6,7 @@
     -   [ ] SemVer Release
 -   Demos
     -   [ ] Translation Lerp
+    -   [ ] Fixed Update Variable FPS
     -   [ ] NES Ice Hockey
     -   [ ] Joust
     -   [ ] Frogger
@@ -13,8 +14,7 @@
     -   [ ] documentation
 -   Graphics
     -   [ ] documentation
-    -   [ ] point
-    -   [ ] line
+    -   [ ] measureText
 -   Keyboard
     -   [ ] documentation
 -   Gamepad
@@ -51,7 +51,6 @@
     -   [ ] SAT
 -   Runtime
     -   [ ] documentation
-    -   [ ] VBR Fixed (maybe a demo)
 -   Debug
     -   [ ] documentation
 -   Sensors (for phones usually)

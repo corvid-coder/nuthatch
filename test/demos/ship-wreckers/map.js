@@ -1,4 +1,4 @@
-import { graphics, orthoMatrix } from "./game.js"
+import { graphics } from "./game.js"
 import { SCREEN } from "./constants.js"
 import Matrix from "/matrix.js"
 

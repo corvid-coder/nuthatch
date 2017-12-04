@@ -1,6 +1,6 @@
 import Matrix from "/matrix.js"
 import { Vector2 } from "/vector.js"
-import { graphics, orthoMatrix, drawShape } from "./game.js"
+import { graphics, matrix, drawShape } from "./game.js"
 import { SPRITESHEET, DEBUG } from "./constants.js"
 
 const SPRITE = [
@@ -34,14 +34,12 @@ export default class Cannonball {
     }
   }
   draw () {
-    const ms = [
-      Matrix.translate({ x: -6, y: -6 }),
-      Matrix.rotate(this.angle),
-      Matrix.scale({x: SCALE, y: SCALE}),
-      Matrix.translate(this.position),
-      orthoMatrix,
-    ]
-    graphics.setTransformMatrix(Matrix.dotMultiplyAll(ms))
+    matrix.save()
+    matrix.translate(this.position),
+    matrix.scale({x: SCALE, y: SCALE}),
+    matrix.rotate(this.angle),
+    matrix.translate({ x: -6, y: -6 }),
+    graphics.setTransformMatrix(matrix.current)
     if (SPRITESHEET.complete) {
       graphics.sprite(SPRITESHEET,
         ...SPRITE
@@ -50,6 +48,7 @@ export default class Cannonball {
     if (DEBUG) {
       drawShape(this.toShape())
     }
+    matrix.restore()
   }
   toShape () {
     const ms = [

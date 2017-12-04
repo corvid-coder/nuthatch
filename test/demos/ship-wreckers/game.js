@@ -1,7 +1,7 @@
 import Runtime from "/runtime.js"
 import Graphics from "/graphics.js"
 import Keyboard from "/keyboard.js"
-import Matrix from "/matrix.js"
+import Matrix, { MatrixState } from "/matrix.js"
 
 import Boat from "./boat.js"
 import Map from "./map.js"
@@ -9,13 +9,13 @@ import { DEBUG, SCREEN } from "./constants.js"
 
 export const keyboard = new Keyboard()
 export const graphics = new Graphics(document.body, SCREEN)
+export const matrix = new MatrixState(Matrix.orthographic(SCREEN))
 
-export const orthoMatrix = Matrix.orthographic(SCREEN)
 export const cannonballs = new Set()
 export const boats = new Set()
 
 export function drawShape(shape) {
-  graphics.setTransformMatrix(orthoMatrix)
+  graphics.setTransformMatrix(matrix.current)
   graphics.setColor({r: 1, g: 1, b: 1, a: 0.25})
   if (shape instanceof SAT.Circle) graphics.circle(shape.pos, shape.r)
   if (shape instanceof SAT.Polygon) graphics.polygon(shape.calcPoints)
@@ -63,7 +63,7 @@ graphics.setup("/")
       })
     }
     runtime.draw = () => {
-      graphics.setTransformMatrix(orthoMatrix)
+      graphics.setTransformMatrix(matrix.current)
       graphics.clear({r: 0, g: 0, b: 0, a: 1})
       map.draw()
       boats.forEach(b=>b.draw())

@@ -47,8 +47,19 @@ graphics.setup("/")
       6
     )
     
+    graphics.setColor({r: 1, g: 0, b: 0, a: 1})
+    graphics.point({ x: 0.2, y: 0.2 })
+    
+    graphics.setColor({r: 0.0, g: 0.8, b: 0.0, a: 1})
+    graphics.line([
+      { x: 0.24, y: 0.2 },
+      { x: 0.8, y: 0.2 },
+      { x: 0.8, y: -0.2 },
+      { x: 0.1, y: -0.2 },
+    ])
+    
     image.onload = () => {
-      graphics.setTransformMatrix(Matrix.orthographic({x: 300, y: 300}))
+      graphics.setTransformMatrix(Matrix.orthographic({x: 600, y: 600}))
       graphics.image(image)
     }
     image.src = "./parrot.png"

@@ -1,6 +1,6 @@
 import Matrix from "/matrix.js"
 import { Vector2 } from "/vector.js"
-import { graphics, keyboard, orthoMatrix, cannonballs, drawShape } from "./game.js"
+import { graphics, keyboard, matrix, cannonballs, drawShape } from "./game.js"
 import { SPRITESHEET, DEBUG } from "./constants.js"
 import Cannonball from "./cannonball.js"
 
@@ -113,15 +113,13 @@ export default class Boat {
     this.position = Vector2.add(this.position, Vector2.multiply(velocityV, dt))
   }
   draw () {
-    const ms = [
-      Matrix.translate({ x: -33, y: -56.5 }),
-      Matrix.rotate(Math.PI),
-      Matrix.rotate(this.angle),
-      Matrix.scale({x: SIZE, y: SIZE}),
-      Matrix.translate(this.position),
-      orthoMatrix,
-    ]
-    graphics.setTransformMatrix(Matrix.dotMultiplyAll(ms))
+    matrix.save()
+    matrix.translate(this.position),
+    matrix.scale({x: SIZE, y: SIZE}),
+    matrix.rotate(this.angle),
+    matrix.rotate(Math.PI),
+    matrix.translate({ x: -33, y: -56.5 }),
+    graphics.setTransformMatrix(matrix.current)
     if (SPRITESHEET.complete) {
       graphics.sprite(SPRITESHEET,
         ...this.sprites[3 - this.health]
@@ -130,6 +128,7 @@ export default class Boat {
     if (DEBUG) {
       drawShape(this.toShape())
     }
+    matrix.restore()
   }
   toShape () {
     const ms = [

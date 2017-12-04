@@ -17,10 +17,10 @@ export default class Matrix {
   static print (m: mat4x4) {
     const l = longestNumber(m)
     console.log(
-`[${fmt(m[0], l)} ${fmt(m[1], l)} ${fmt(m[2], l)} ${fmt(m[3], l)}
- ${fmt(m[4], l)} ${fmt(m[5], l)} ${fmt(m[6], l)} ${fmt(m[7], l)}
- ${fmt(m[8], l)} ${fmt(m[9], l)} ${fmt(m[10], l)} ${fmt(m[11], l)}
- ${fmt(m[12], l)} ${fmt(m[13], l)} ${fmt(m[14], l)} ${fmt(m[15], l)}]`
+      `[${fmt(m[0], l)} ${fmt(m[1], l)} ${fmt(m[2], l)} ${fmt(m[3], l)}\n`,
+      `${fmt(m[4], l)} ${fmt(m[5], l)} ${fmt(m[6], l)} ${fmt(m[7], l)}\n`,
+      `${fmt(m[8], l)} ${fmt(m[9], l)} ${fmt(m[10], l)} ${fmt(m[11], l)}\n`,
+      `${fmt(m[12], l)} ${fmt(m[13], l)} ${fmt(m[14], l)} ${fmt(m[15], l)}]`
     )
   }
   static clone (m: mat4x4) : mat4x4 {
@@ -110,5 +110,46 @@ export default class Matrix {
     m[4] = Math.sin(a)
     m[5] = Math.cos(a)
     return m
+  }
+}
+
+export class MatrixState {
+  private states: mat4x4[] = []
+  public current: mat4x4
+  constructor (m: mat4x4 = Matrix.identity()) {
+    this.states.push(m)
+    this.current = m
+  }
+  save () : void
+  {
+    this.states.push(this.current)
+  }
+  restore () : void
+  {
+    this.current = this.states.pop()!
+  }
+  multiply (
+    m: mat4x4,
+  ) : void
+  {
+    this.current = Matrix.dotMultiply(this.current, m)
+  }
+  translate (
+    v: Vector2
+  ) : void
+  {
+    this.current = Matrix.dotMultiply(this.current, Matrix.translate(v))
+  }
+  scale (
+    v: Vector2
+  ) : void
+  {
+    this.current = Matrix.dotMultiply(this.current, Matrix.scale(v))
+  }
+  rotate (
+    r: radian
+  ) : void
+  {
+    this.current = Matrix.dotMultiply(this.current, Matrix.rotate(r))
   }
 }
