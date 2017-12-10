@@ -2,8 +2,6 @@ types/
 /*.js
 /*.js.map
 
-package-lock.json
-
 # Logs
 logs
 *.log

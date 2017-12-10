@@ -1,18 +1,24 @@
 {
   "name": "nuthatch",
-  "version": "1.0.0",
-  "description": "A collection of utilities for making games. 🎮 ",
+  "version": "0.1.2",
+  "description": "A collection of utilities for making games. 🎮",
   "types": "./types",
   "keywords": [
     "game",
-    "engine"
+    "engine",
+    "gamedev",
+    "graphics"
   ],
   "scripts": {
     "test": "lite-server --config=\"./test/lite-server-config.json\"",
-    "publish": "npm run build && npm publish",
     "build": "tsc",
     "dev": "npm run build -- --watch"
   },
+  "files": [
+    "assets",
+    "types",
+    "*.js"
+  ],
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
   "devDependencies": {

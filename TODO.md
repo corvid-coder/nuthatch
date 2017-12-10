@@ -1,6 +1,9 @@
 # TODO: list
 
--   README.md
+-   release
+    -   [ ] README.md
+    -   [ ] documentation
+    -   [ ] publish to npm
 -   Dev Ops
     -   [ ] Linter
     -   [ ] SemVer Release
@@ -11,50 +14,33 @@
     -   [ ] Joust
     -   [ ] Frogger
 -   webgl2
-    -   [ ] documentation
 -   Graphics
-    -   [ ] documentation
     -   [ ] measureText
 -   Keyboard
-    -   [ ] documentation
 -   Gamepad
-    -   [ ] documentation
 -   Mouse
-    -   [ ] documentation
 -   Audio
-    -   [ ] documentation
-    -   [ ] play
+    -   [ ] Source Stop
+    -   [ ] Source Volume
+    -   [ ] Source Pan
+    -   [ ] Source Loop
+    -   [ ] Master Volume
 -   Vector
-    -   [ ] documentation
     -   [ ] clone
     -   [ ] dotProduct
     -   [ ] getters (x, y, r, g, b, a)
     -   [ ] setters
 -   Matrix
-    -   [ ] documentation
     -   [ ] projection
 -   MatrixState
-    -   [ ] documentation
-    -   [ ] push (auto multiply)
-    -   [ ] pop
-    -   [ ] top
 -   StateManager
-    -   [ ] documentation
 -   EventBus
-    -   [ ] documentation
-    -   [ ] on
-    -   [ ] off
-    -   [ ] trigger
 -   CollisionDetection
-    -   [ ] documentation
     -   [ ] AABB
     -   [ ] SAT
 -   Runtime
-    -   [ ] documentation
 -   Debug
-    -   [ ] documentation
 -   Sensors (for phones usually)
-    -   [ ] documentation
     -   [ ] Ambient Light
     -   [ ] Motion
     -   [ ] MIDI
