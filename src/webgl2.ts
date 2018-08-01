@@ -1,4 +1,5 @@
 import { assert } from "./debug.js"
+import { Option, Some } from "./utilities.js"
 
 export interface Program {
   program: WebGLProgram,
@@ -29,7 +30,7 @@ export function initShaderProgram (
   gl: WebGL2RenderingContext,
   vertexShaderSource: string,
   fragmentShaderSource: string
-) : WebGLProgram
+) : Option<WebGLProgram>
 {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vertexShaderSource)
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource)
@@ -42,7 +43,7 @@ export function initShaderProgram (
     !!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS),
     `Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`
   )
-  return shaderProgram
+  return Some(shaderProgram)
 }
 
 export function loadShader(

@@ -1,6 +1,4 @@
-types/
-/*.js
-/*.js.map
+dist
 
 # Logs
 logs

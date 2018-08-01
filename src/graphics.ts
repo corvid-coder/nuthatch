@@ -1,5 +1,6 @@
+import { readFileSync } from "fs";
 import { Vector2, Color } from "./vector.js"
-import { getFile } from "./utilities.js"
+import { Option, OptionState, Some, None } from "./utilities.js"
 import Matrix, { mat4x4 } from "./matrix.js"
 import { Font } from "./font.js"
 import {
@@ -12,15 +13,15 @@ import {
 } from "./webgl2.js"
 
 
-class Graphics
+export class Graphics
 {
   private gl : WebGL2RenderingContext
-  private program: WebGLProgram
+  private program: Option<WebGLProgram> = None()
   private buffers: {[index: string]: WebGLBuffer}
   private attributes: {[index: string]: number}
   private uniforms: {[index: string]: WebGLUniformLocation}
   private textureCache: WeakMap<HTMLImageElement | ImageData, WebGLTexture> = new WeakMap()
-  private lastTextureUsed: HTMLImageElement | ImageData
+  private lastTextureUsed: Option<HTMLImageElement | ImageData> = None()
   constructor (
     target: HTMLElement = document.body,
     size: Vector2 = {x: 300, y: 300},
@@ -31,20 +32,18 @@ class Graphics
     canvas.height = size.y
     this.gl = getContext(canvas)
     target.appendChild(canvas)
-  }
-  async setup (
-    pathToNuthatch: string = "/node_modules/@nuthatch",
-  )
-  {
-    if (pathToNuthatch.endsWith("/")) {
-      pathToNuthatch = pathToNuthatch.slice(1)
-    }
+    this.buffers = {}
+    this.attributes = {}
+    this.uniforms = {}
     this.program = initShaderProgram(
       this.gl,
-      await getFile(`${pathToNuthatch}/assets/shader.v.glsl`),
-      await getFile(`${pathToNuthatch}/assets/shader.f.glsl`),
+      readFileSync(`${__dirname}/../assets/shader.v.glsl`, {encoding: "utf8"}),
+      readFileSync(`${__dirname}/../assets/shader.f.glsl`, {encoding: "utf8"}),
     )
-    this.gl.useProgram(this.program)
+    if (this.program.state === OptionState.None) {
+      throw new Error("There is no GLProgram")
+    }
+    this.gl.useProgram(this.program.value)
     this.buffers = {
       vbo: createBuffer(this.gl),
       ebo: createBuffer(this.gl),
@@ -54,14 +53,14 @@ class Graphics
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.buffers.imageEbo)
     this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, Uint16Array.from(elements), this.gl.STATIC_DRAW)
     this.attributes = {
-      a_position: getAttributeLocation(this.gl, this.program, "a_position"),
-      a_texCoord: getAttributeLocation(this.gl, this.program, "a_texCoord"),
+      a_position: getAttributeLocation(this.gl, this.program.value, "a_position"),
+      a_texCoord: getAttributeLocation(this.gl, this.program.value, "a_texCoord"),
     }
     this.uniforms = {
-      u_type: getUniformLocation(this.gl, this.program, "u_type"),
-      u_color: getUniformLocation(this.gl, this.program, "u_color"),
-      u_tex: getUniformLocation(this.gl, this.program, "u_tex"),
-      u_transformation: getUniformLocation(this.gl, this.program, "u_transformation"),
+      u_type: getUniformLocation(this.gl, this.program.value, "u_type"),
+      u_color: getUniformLocation(this.gl, this.program.value, "u_color"),
+      u_tex: getUniformLocation(this.gl, this.program.value, "u_tex"),
+      u_transformation: getUniformLocation(this.gl, this.program.value, "u_transformation"),
     }
     const texture = createTexture(this.gl)
     this.gl.uniform1i(this.uniforms.u_tex, 0)
@@ -136,7 +135,8 @@ class Graphics
     image: HTMLImageElement | ImageData,
   )
   {
-    if (this.lastTextureUsed === image) {
+    if (this.lastTextureUsed.state === OptionState.Some
+        && this.lastTextureUsed.value === image) {
       return
     }
     let texture = this.textureCache.get(image)
@@ -157,7 +157,7 @@ class Graphics
       this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
       image,
     )
-    this.lastTextureUsed = image
+    this.lastTextureUsed = Some(image)
   }
   private drawImage (
     vertices: number[],
@@ -412,5 +412,3 @@ class Graphics
     this.gl.disableVertexAttribArray(this.attributes.a_position)
   }
 }
-
-export default Graphics

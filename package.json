@@ -2,7 +2,8 @@
   "name": "nuthatch",
   "version": "0.1.2",
   "description": "A collection of utilities for making games. 🎮",
-  "types": "./types",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "keywords": [
     "game",
     "engine",
@@ -16,19 +17,19 @@
   },
   "files": [
     "assets",
-    "types",
-    "*.js"
+    "dist"
   ],
   "author": "Danny Fritz <dannyfritz@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "lite-server": "^2.3.0",
+    "lite-server": "^2.4.0",
     "remark-lint": "^6.0.1",
     "remark-lint-checkbox-content-indent": "^1.0.1",
     "remark-preset-lint-recommended": "^3.0.1",
-    "typescript": "^2.6.1"
+    "typescript": "^3.0.1"
   },
   "dependencies": {
-    "@types/webgl2": "0.0.2"
+    "@types/node": "^10.5.5",
+    "@types/webgl2": "0.0.4"
   }
 }

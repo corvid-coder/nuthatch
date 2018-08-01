@@ -1,10 +1,3 @@
-export function getFile (
-  filename: string
-) : Promise<string> {
-  return fetch(filename)
-    .then((res) => res.text())
-}
-
 export function exhaustiveCheck() : never {
   throw new Error("TS Exhaustive Check")
 }

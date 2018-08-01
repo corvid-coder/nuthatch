@@ -1,8 +1,8 @@
 export default class Runtime {
-  private lastTime : number
-  private startTime : number
-  private rafId : number
-  public frames : number
+  private lastTime : number = -1 
+  private startTime : number = -1
+  private rafId : number = -1
+  public frames : number = -1
   private _tick : () => {}
   constructor () {
     this._tick = this.tick.bind(this)
