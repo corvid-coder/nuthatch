@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { Vector2, Color } from "./vector.js"
 import { Option, OptionState, Some, None } from "./utilities.js"
-import Matrix, { mat4x4 } from "./matrix.js"
+import { Matrix, mat4x4 } from "./matrix.js"
 import { Font } from "./font.js"
 import {
   getContext,
@@ -11,7 +11,6 @@ import {
   createBuffer,
   createTexture,
 } from "./webgl2.js"
-
 
 export class Graphics
 {

@@ -1,6 +1,6 @@
 //TODO: Enum the keys that can be passed in
 const normalizeKeyCode = (code: string) => code.replace("Key", "").toLowerCase()
-export default class Keyboard {
+export class Keyboard {
   private state : {[index: string]: boolean}
   constructor () {
     this.state = {}

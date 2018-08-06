@@ -13,7 +13,7 @@ export type radian = number
 const longestNumber = (m: mat4x4) => Math.max(...m.map(n=>n.toString().length))
 const fmt = (n: number, l: number) => n.toString().padEnd(l)
 
-export default class Matrix {
+export class Matrix {
   static print (m: mat4x4) {
     const l = longestNumber(m)
     console.log(

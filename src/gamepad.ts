@@ -1,4 +1,4 @@
-export default class Gamepads {
+export class Gamepads {
   constructor () {}
   get length (): number {
     return navigator.getGamepads().length

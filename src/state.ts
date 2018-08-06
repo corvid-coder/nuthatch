@@ -1,34 +1,32 @@
-export interface State {
-  destroy: () => {},
-  enter: () => {},
-  leave: () => {},
-  update: (dt: number) => any,
-  draw: () => {},
+export interface IState {
+  enter: () => void,
+  leave: () => void,
+  update: (dt: number) => void,
+  draw: () => void,
 }
 
 export class StateManager {
-  private states: State[] = []
+  private states: IState[] = []
   constructor() {}
-  top () : State {
+  top () : IState {
     return this.states[this.states.length - 1]
   }
-  update (dt: number) : any {
+  update (dt: number) : void {
     return this.top().update(dt)
   }
   draw () : void {
     this.top().draw()
   }
-  push(state: State) : void {
+  push(state: IState) : void {
     if (this.top()) {
       this.top().leave()
     }
     this.states.push(state)
     state.enter()
   }
-  pop() : State {
+  pop() : IState {
     const state = this.states.pop()!
     state.leave()
-    state.destroy()
     if (this.top()) {
       this.top().enter()
     }
