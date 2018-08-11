@@ -14,7 +14,7 @@ import {
 
 export class Graphics
 {
-  private gl : WebGL2RenderingContext
+  private gl: WebGL2RenderingContext
   private program: Option<WebGLProgram> = None()
   private buffers: {[index: string]: WebGLBuffer}
   private attributes: {[index: string]: number}

@@ -13,12 +13,14 @@ export class VariableRuntime {
     this.frames = 0
     this._tick()
   }
+  input () {}
   update (_dt: number) {}
   draw () {}
   tick () {
     this.rafId = requestAnimationFrame(this._tick)
     const now = performance.now()
     this.frames += 1
+    this.input()
     this.update((now - this.lastTime) / 1000)
     this.draw()
     this.lastTime = now
@@ -49,19 +51,21 @@ export class FixedRuntime {
     this.frames = 0
     this._tick()
   }
+  input () {}
   update (_dt: number) {}
   draw () {}
   tick () {
     this.rafId = requestAnimationFrame(this._tick)
     const now = performance.now()
     this.accumulator += (now - this.lastTime) / 1000
+    this.lastTime = now
     this.frames += 1
+    this.input()
     while (this.accumulator > this.dt) {
       this.update(this.dt)
       this.accumulator -= this.dt
     }
     this.draw()
-    this.lastTime = now
   }
   stop () {
     cancelAnimationFrame(this.rafId)

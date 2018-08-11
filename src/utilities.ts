@@ -25,9 +25,8 @@ export function Err<E extends Error>(err: E) : Err<E> {
   }
 }
 
-
 export type Option<T> = Some<T> | None
-export enum OptionState { Some, None, }
+export enum OptionState { Some, None }
 export interface Some<T> {
   state: OptionState.Some,
   value: T
